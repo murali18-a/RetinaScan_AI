@@ -1,0 +1,65 @@
+{
+  "grad_cam_samples": 8,
+  "correctly_classified": 8,
+  "sample_accuracy_pct": 100.0,
+  "mean_confidence_correct": 99.44,
+  "mean_confidence_incorrect": null,
+  "per_sample": [
+    {
+      "file": "CNV-1016042-1.jpeg",
+      "true_class": "CNV",
+      "predicted_class": "CNV",
+      "confidence_pct": 100.0,
+      "correct": true
+    },
+    {
+      "file": "CNV-1016042-2.jpeg",
+      "true_class": "CNV",
+      "predicted_class": "CNV",
+      "confidence_pct": 100.0,
+      "correct": true
+    },
+    {
+      "file": "DME-1081406-1.jpeg",
+      "true_class": "DME",
+      "predicted_class": "DME",
+      "confidence_pct": 100.0,
+      "correct": true
+    },
+    {
+      "file": "DME-1102486-1.jpeg",
+      "true_class": "DME",
+      "predicted_class": "DME",
+      "confidence_pct": 100.0,
+      "correct": true
+    },
+    {
+      "file": "DRUSEN-1083159-1.jpeg",
+      "true_class": "DRUSEN",
+      "predicted_class": "DRUSEN",
+      "confidence_pct": 99.97,
+      "correct": true
+    },
+    {
+      "file": "DRUSEN-1112835-1.jpeg",
+      "true_class": "DRUSEN",
+      "predicted_class": "DRUSEN",
+      "confidence_pct": 95.61,
+      "correct": true
+    },
+    {
+      "file": "NORMAL-1017237-1.jpeg",
+      "true_class": "NORMAL",
+      "predicted_class": "NORMAL",
+      "confidence_pct": 99.99,
+      "correct": true
+    },
+    {
+      "file": "NORMAL-101880-1.jpeg",
+      "true_class": "NORMAL",
+      "predicted_class": "NORMAL",
+      "confidence_pct": 99.99,
+      "correct": true
+    }
+  ]
+}
