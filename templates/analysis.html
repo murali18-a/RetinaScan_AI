@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+{% block title %}New Analysis — RetinaScan AI{% endblock %}
+{% block topbar_title %}New Analysis{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>New OCT Analysis</h1>
+    <p>Upload an OCT B-scan image to generate a model prediction and Grad-CAM visual explanation.</p>
+</div>
+
+<div class="grid-2" id="analysis-layout">
+    <!-- LEFT — Upload -->
+    <div>
+        <div class="card" id="upload-card">
+            <div class="card-header">
+                <span class="card-title">Upload Image</span>
+            </div>
+            <div class="card-body">
+                <!-- Upload Area -->
+                <div class="upload-area" id="upload-area">
+                    <input type="file" class="upload-input" id="file-input" accept="image/jpeg,image/png,image/jpg">
+                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    <div class="upload-title">Drop your OCT scan here, or <span class="upload-browse">browse</span></div>
+                    <div class="upload-subtitle">Grayscale OCT B-scan images</div>
+                    <div class="upload-formats">Supported: JPEG, PNG &middot; Max 10MB</div>
+                </div>
+
+                <!-- Preview (hidden initially) -->
+                <div id="preview-section" style="display:none;">
+                    <div class="image-preview" id="image-preview">
+                        <img id="preview-img" src="" alt="OCT scan preview">
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
+                        <div>
+                            <div id="file-name" style="font-size:0.85rem;font-weight:600;color:var(--gray-700);"></div>
+                            <div id="file-size" style="font-size:0.75rem;color:var(--gray-400);margin-top:2px;"></div>
+                        </div>
+                        <button class="btn btn-sm btn-secondary" onclick="resetUpload()">Remove</button>
+                    </div>
+                    <button class="btn btn-primary btn-lg mt-16" id="analyze-btn" onclick="runAnalysis()" style="width:100%;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                        Analyze Scan
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Example Images -->
+        {% if examples %}
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Sample Images</span>
+                <span style="font-size:0.72rem;color:var(--gray-400);">Click to load</span>
+            </div>
+            <div class="card-body" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+                {% for ex in examples %}
+                <div style="cursor:pointer;border:1px solid var(--gray-200);border-radius:var(--radius-md);overflow:hidden;transition:all 0.15s;" onclick="loadExample('{{ ex.filename }}')" onmouseover="this.style.borderColor='var(--teal-400)'" onmouseout="this.style.borderColor='var(--gray-200)'">
+                    <img src="{{ url_for('serve_demo_image', filename=ex.filename) }}" alt="{{ ex.class }}" style="width:100%;display:block;aspect-ratio:1;">
+                    <div style="padding:4px 6px;font-size:0.68rem;font-weight:600;color:var(--gray-600);text-align:center;background:var(--gray-50);">{{ ex.class }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- RIGHT — Results -->
+    <div id="results-section">
+        <div class="card" id="result-card" style="display:none;">
+            <div class="card-header">
+                <span class="card-title">Prediction Result</span>
+                <span class="badge" id="result-status-badge"></span>
+            </div>
+            <div class="card-body" id="result-body"></div>
+        </div>
+
+        <!-- Initial empty state -->
+        <div class="card" id="empty-result">
+            <div class="card-body">
+                <div class="empty-state" style="padding:64px 24px;">
+                    <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 5C5.636 5 2 12 2 12s3.636 7 10 7 10-7 10-7-3.636-7-10-7z"/></svg>
+                    <h3>No analysis results</h3>
+                    <p>Upload an OCT scan and click "Analyze Scan" to see the prediction and Grad-CAM explanation.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading state -->
+        <div class="card" id="loading-card" style="display:none;">
+            <div class="card-body" style="text-align:center;padding:64px;">
+                <div class="spinner" style="margin:0 auto 16px;width:28px;height:28px;"></div>
+                <p style="font-size:0.85rem;color:var(--gray-500);">Running inference...</p>
+                <p style="font-size:0.75rem;color:var(--gray-400);margin-top:4px;">Validating input, classifying, generating Grad-CAM</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="disclaimer mt-24">
+    This system is intended for research and decision-support purposes and is not a substitute for professional clinical diagnosis.
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let selectedFile = null;
+
+// File input handling
+const fileInput = document.getElementById('file-input');
+const uploadArea = document.getElementById('upload-area');
+
+fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) handleFile(e.target.files[0]);
+});
+
+uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault(); uploadArea.classList.remove('drag-over');
+    if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+});
+
+function handleFile(file) {
+    if (!file.type.match(/image\/(jpeg|png|jpg)/)) {
+        showToast('Please upload a JPEG or PNG image.', 'error');
+        return;
+    }
+    selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        document.getElementById('preview-img').src = e.target.result;
+        document.getElementById('file-name').textContent = file.name;
+        document.getElementById('file-size').textContent = (file.size / 1024).toFixed(1) + ' KB';
+        document.getElementById('upload-area').style.display = 'none';
+        document.getElementById('preview-section').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+}
+
+function resetUpload() {
+    selectedFile = null;
+    fileInput.value = '';
+    document.getElementById('upload-area').style.display = 'block';
+    document.getElementById('preview-section').style.display = 'none';
+    document.getElementById('result-card').style.display = 'none';
+    document.getElementById('empty-result').style.display = 'block';
+    document.getElementById('loading-card').style.display = 'none';
+}
+
+function loadExample(filename) {
+    document.getElementById('empty-result').style.display = 'none';
+    document.getElementById('result-card').style.display = 'none';
+    document.getElementById('loading-card').style.display = 'block';
+
+    fetch('/api/analyze-example', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: filename }),
+    })
+    .then(r => r.json())
+    .then(data => displayResult(data))
+    .catch(err => {
+        document.getElementById('loading-card').style.display = 'none';
+        document.getElementById('empty-result').style.display = 'block';
+        showToast('Analysis failed: ' + err.message, 'error');
+    });
+}
+
+function runAnalysis() {
+    if (!selectedFile) return;
+    const btn = document.getElementById('analyze-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Analyzing...';
+
+    document.getElementById('empty-result').style.display = 'none';
+    document.getElementById('result-card').style.display = 'none';
+    document.getElementById('loading-card').style.display = 'block';
+
+    const formData = new FormData();
+    formData.append('image', selectedFile);
+
+    fetch('/api/analyze', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(data => {
+            displayResult(data);
+            btn.disabled = false;
+            btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg> Analyze Scan';
+        })
+        .catch(err => {
+            document.getElementById('loading-card').style.display = 'none';
+            document.getElementById('empty-result').style.display = 'block';
+            btn.disabled = false;
+            btn.innerHTML = 'Analyze Scan';
+            showToast('Analysis failed: ' + err.message, 'error');
+        });
+}
+
+function displayResult(data) {
+    document.getElementById('loading-card').style.display = 'none';
+
+    if (!data.valid) {
+        document.getElementById('result-card').style.display = 'block';
+        document.getElementById('result-status-badge').className = 'badge badge-error';
+        document.getElementById('result-status-badge').textContent = 'Invalid Input';
+        document.getElementById('result-body').innerHTML = `
+            <div class="alert alert-error">
+                <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+                <div>
+                    <strong>Not a valid OCT scan</strong>
+                    <div style="margin-top:4px;font-size:0.8rem;">${data.rejection_reasons ? data.rejection_reasons.join('<br>') : 'The image does not appear to be an OCT retinal scan.'}</div>
+                </div>
+            </div>
+            <p style="font-size:0.82rem;color:var(--gray-500);">Please upload a grayscale OCT B-scan image.</p>`;
+        return;
+    }
+
+    const colors = { CNV: '#F59E0B', DME: '#EF4444', DRUSEN: '#6366F1', NORMAL: '#22C55E' };
+    const badgeClass = data.prediction ? 'badge-' + data.prediction.toLowerCase() : '';
+    const statusBadge = data.status === 'high_confidence' ? 'badge-success' : 'badge-warning';
+    const statusText = data.status === 'high_confidence' ? 'High Confidence' : 'Moderate';
+
+    document.getElementById('result-card').style.display = 'block';
+    document.getElementById('result-status-badge').className = 'badge ' + statusBadge;
+    document.getElementById('result-status-badge').textContent = statusText;
+
+    let probsHTML = '';
+    const sorted = Object.entries(data.probabilities).sort((a, b) => b[1] - a[1]);
+    for (const [cls, pct] of sorted) {
+        probsHTML += `
+        <div class="confidence-bar-container">
+            <div class="confidence-bar-label"><span>${cls}</span><span>${pct.toFixed(1)}%</span></div>
+            <div class="confidence-bar"><div class="confidence-bar-fill bar-${cls.toLowerCase()}" style="width:${pct}%"></div></div>
+        </div>`;
+    }
+
+    document.getElementById('result-body').innerHTML = `
+        <div style="margin-bottom:18px;">
+            <div style="font-size:0.75rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.04em;">Model Prediction</div>
+            <div class="prediction-class" style="margin-top:4px;">${data.prediction}</div>
+            <div class="prediction-full-name">${data.prediction_full}</div>
+            <div style="font-size:0.85rem;color:var(--gray-600);margin-top:8px;">${data.clinical_description}</div>
+        </div>
+        <div style="margin-bottom:20px;">${probsHTML}</div>
+
+        <div style="margin-bottom:18px;">
+            <div style="font-size:0.82rem;font-weight:600;color:var(--gray-700);margin-bottom:8px;">Grad-CAM Explainability</div>
+            <div class="gradcam-grid">
+                <div class="gradcam-panel">
+                    <div class="gradcam-panel-label">Original</div>
+                    <img src="data:image/png;base64,${data.original_b64}" alt="Original">
+                </div>
+                <div class="gradcam-panel">
+                    <div class="gradcam-panel-label">Heatmap</div>
+                    <img src="data:image/png;base64,${data.heatmap_b64}" alt="Heatmap">
+                </div>
+                <div class="gradcam-panel">
+                    <div class="gradcam-panel-label">Overlay</div>
+                    <img src="data:image/png;base64,${data.overlay_b64}" alt="Overlay">
+                </div>
+            </div>
+        </div>
+
+        <div style="font-size:0.82rem;color:var(--gray-600);margin-bottom:8px;">
+            <strong style="color:var(--gray-700);">Attention Region:</strong> ${data.attention_region}
+        </div>
+        <div style="font-size:0.82rem;color:var(--gray-600);margin-bottom:12px;">
+            <strong style="color:var(--gray-700);">Interpretation:</strong> ${data.interpretation}
+        </div>
+
+        <div style="text-align:center;margin-top:14px;">
+            <a href="/result/${data.scan_id}" class="btn btn-sm btn-secondary">View Full Report</a>
+        </div>
+    `;
+
+    showToast('Analysis complete — ' + data.prediction + ' (' + data.confidence + '%)', 'success');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}Settings — RetinaScan AI{% endblock %}
+{% block topbar_title %}Settings{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Settings</h1>
+    <p>Manage your account and application preferences.</p>
+</div>
+
+<!-- Profile Settings -->
+<div class="settings-section">
+    <h3>Profile</h3>
+    <p>Update your account information.</p>
+    <div class="card">
+        <div class="card-body">
+            <div class="grid-2" style="gap:20px;">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input class="form-input" type="text" value="{{ user.name }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input class="form-input" type="email" value="{{ user.email }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <input class="form-input" type="text" value="{{ user.role }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Institution</label>
+                    <input class="form-input" type="text" value="{{ user.institution }}" disabled>
+                </div>
+            </div>
+            <div class="form-hint mt-8">Profile fields are read-only in the demo environment.</div>
+        </div>
+    </div>
+</div>
+
+<!-- Application Settings -->
+<div class="settings-section">
+    <h3>Application</h3>
+    <p>Configure application behavior.</p>
+    <div class="card">
+        <div class="card-body">
+            <div class="form-group">
+                <label class="form-label">Theme</label>
+                <select class="filter-select" style="width:200px;" disabled>
+                    <option selected>Light</option>
+                </select>
+                <div class="form-hint">Only light theme is available.</div>
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="checkbox" id="auto-save" checked disabled>
+                    <label for="auto-save">Auto-save analysis results to history</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="checkbox" id="gradcam-auto" checked disabled>
+                    <label for="gradcam-auto">Generate Grad-CAM for every analysis</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Settings -->
+<div class="settings-section">
+    <h3>Notifications</h3>
+    <p>Control notification preferences.</p>
+    <div class="card">
+        <div class="card-body">
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="checkbox" id="notif-complete" checked disabled>
+                    <label for="notif-complete">Show toast when analysis completes</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="checkbox" id="notif-error" checked disabled>
+                    <label for="notif-error">Show toast on validation errors</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Data Management -->
+<div class="settings-section">
+    <h3>Data Management</h3>
+    <p>Manage stored analysis data.</p>
+    <div class="card">
+        <div class="card-body">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <div style="font-size:0.85rem;font-weight:600;color:var(--gray-700);">Clear Analysis History</div>
+                    <div style="font-size:0.78rem;color:var(--gray-500);margin-top:2px;">Remove all stored analysis records. This cannot be undone.</div>
+                </div>
+                <button class="btn btn-danger btn-sm" onclick="clearAllHistory()">Clear History</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Security -->
+<div class="settings-section">
+    <h3>Security</h3>
+    <p>Account security options.</p>
+    <div class="card">
+        <div class="card-body">
+            <div class="form-group">
+                <label class="form-label">Change Password</label>
+                <input class="form-input" type="password" placeholder="Current password" disabled style="max-width:360px;margin-bottom:8px;">
+                <input class="form-input" type="password" placeholder="New password" disabled style="max-width:360px;">
+                <div class="form-hint">Password changes are disabled in the demo environment.</div>
+            </div>
+            <div style="margin-top:16px;">
+                <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                    Sign Out
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function clearAllHistory() {
+    if (!confirm('Are you sure you want to clear all analysis history? This action cannot be undone.')) return;
+    fetch('/api/history/clear', { method: 'POST' })
+        .then(r => r.json())
+        .then(() => { showToast('History cleared successfully.', 'success'); })
+        .catch(() => { showToast('Failed to clear history.', 'error'); });
+}
+</script>
+{% endblock %}

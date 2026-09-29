@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}Analysis Result — RetinaScan AI{% endblock %}
+{% block topbar_title %}Analysis Result{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+    <div>
+        <h1>Analysis Report</h1>
+        <p>Scan <span style="font-family:var(--font-mono);font-weight:600;">{{ record.scan_id }}</span> &middot; {{ record.timestamp[:16].replace('T', ' ') }}</p>
+    </div>
+    <a href="{{ url_for('analysis') }}" class="btn btn-secondary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M12 5v14M5 12h14"/><circle cx="12" cy="12" r="10"/></svg>
+        New Analysis
+    </a>
+</div>
+
+{% if not record.valid %}
+<div class="alert alert-error">
+    <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+    <div>
+        <strong>Invalid Input</strong>
+        <div style="margin-top:4px;font-size:0.82rem;">This image was rejected by the validation pipeline.</div>
+    </div>
+</div>
+{% else %}
+
+<div class="grid-2" style="gap:24px;">
+    <!-- LEFT — Images -->
+    <div>
+        {% if record.original_b64 %}
+        <div class="card mb-16">
+            <div class="card-header">
+                <span class="card-title">OCT B-scan</span>
+            </div>
+            <div style="padding:0;">
+                <img src="data:image/png;base64,{{ record.original_b64 }}" alt="Original OCT" style="width:100%;display:block;border-radius:0 0 var(--radius-lg) var(--radius-lg);">
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Grad-CAM Viewer -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Explainability — Grad-CAM</span>
+            </div>
+            <div class="card-body">
+                <div class="gradcam-grid">
+                    {% if record.original_b64 %}
+                    <div class="gradcam-panel">
+                        <div class="gradcam-panel-label">Original</div>
+                        <img src="data:image/png;base64,{{ record.original_b64 }}" alt="Original">
+                    </div>
+                    {% endif %}
+                    {% if record.heatmap_b64 %}
+                    <div class="gradcam-panel">
+                        <div class="gradcam-panel-label">Grad-CAM Heatmap</div>
+                        <img src="data:image/png;base64,{{ record.heatmap_b64 }}" alt="Heatmap">
+                    </div>
+                    {% endif %}
+                    {% if record.overlay_b64 %}
+                    <div class="gradcam-panel">
+                        <div class="gradcam-panel-label">Overlay</div>
+                        <img src="data:image/png;base64,{{ record.overlay_b64 }}" alt="Overlay">
+                    </div>
+                    {% endif %}
+                </div>
+                <p style="font-size:0.78rem;color:var(--gray-400);margin-top:12px;">
+                    The Grad-CAM visualization highlights regions that contributed most to the model's prediction.
+                    Red/yellow indicates high attention; blue indicates low attention.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT — Prediction Details -->
+    <div>
+        <!-- Prediction Card -->
+        <div class="card mb-16">
+            <div class="card-header">
+                <span class="card-title">Model Prediction</span>
+                {% if record.status == 'high_confidence' %}
+                <span class="badge badge-success">High Confidence</span>
+                {% elif record.status == 'moderate_confidence' %}
+                <span class="badge badge-warning">Moderate</span>
+                {% else %}
+                <span class="badge badge-warning">Low Confidence</span>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <div style="text-align:center;padding:12px 0 20px;">
+                    <span class="badge badge-{{ record.prediction|lower }}" style="font-size:1.1rem;padding:6px 20px;">{{ record.prediction }}</span>
+                    <div style="font-size:0.85rem;color:var(--gray-500);margin-top:8px;">{{ record.prediction_full }}</div>
+                    <div style="font-size:2rem;font-weight:700;color:var(--gray-900);margin-top:8px;">{{ record.confidence }}%</div>
+                    <div style="font-size:0.75rem;color:var(--gray-400);">Model confidence</div>
+                </div>
+
+                <!-- Probability bars -->
+                {% for cls in ['CNV', 'DME', 'DRUSEN', 'NORMAL'] %}
+                <div class="confidence-bar-container" style="margin-bottom:10px;">
+                    <div class="confidence-bar-label">
+                        <span>{{ cls }}</span>
+                        <span>{{ record.probabilities.get(cls, 0) }}%</span>
+                    </div>
+                    <div class="confidence-bar">
+                        <div class="confidence-bar-fill bar-{{ cls|lower }}" style="width:{{ record.probabilities.get(cls, 0) }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Clinical Information -->
+        <div class="card mb-16">
+            <div class="card-header">
+                <span class="card-title">Clinical Information</span>
+            </div>
+            <div class="card-body">
+                <div style="margin-bottom:14px;">
+                    <div style="font-size:0.75rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px;">Clinical Description</div>
+                    <p style="font-size:0.85rem;color:var(--gray-700);line-height:1.6;">{{ record.clinical_description }}</p>
+                </div>
+                <div style="margin-bottom:14px;">
+                    <div style="font-size:0.75rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px;">Attention Region</div>
+                    <p style="font-size:0.85rem;color:var(--gray-700);line-height:1.6;">{{ record.attention_region }}</p>
+                </div>
+                <div>
+                    <div style="font-size:0.75rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px;">Model Interpretation</div>
+                    <p style="font-size:0.85rem;color:var(--gray-700);line-height:1.6;">{{ record.interpretation }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scan Metadata -->
+        <div class="card">
+            <div class="card-header"><span class="card-title">Scan Metadata</span></div>
+            <div class="card-body-compact">
+                <table class="spec-table">
+                    <tr><td>Scan ID</td><td class="mono">{{ record.scan_id }}</td></tr>
+                    <tr><td>Timestamp</td><td>{{ record.timestamp[:19].replace('T', ' ') }}</td></tr>
+                    <tr><td>Model</td><td>ConvNeXt-Tiny (28.5M parameters)</td></tr>
+                    <tr><td>Grad-CAM Layer</td><td class="mono">model.features[-1]</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="disclaimer mt-24">
+    This system is intended for research and decision-support purposes and is not a substitute for professional clinical diagnosis. The predictions shown are model outputs, not clinical diagnoses.
+</div>
+{% endif %}
+{% endblock %}

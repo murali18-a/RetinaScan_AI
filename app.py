@@ -52,376 +52,324 @@ MAX_ENTROPY = math.log(4)
 HIGH_ENTROPY_RATIO = 0.75
 
 # ================================================================
-# 2. PREMIUM CSS — IGLOO-INSPIRED IMMERSIVE DARK DESIGN
+# 2. CSS — CLEAN LIGHT MOBILE-APP MEDICAL DESIGN
 # ================================================================
 CUSTOM_CSS = """
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
 
 :root {
-    --bg-void:       #050510;
-    --bg-primary:    #080c18;
-    --bg-secondary:  #0d1425;
-    --bg-card:       rgba(13, 20, 40, 0.65);
-    --bg-card-solid: #0f1730;
-    --border-subtle: rgba(100, 130, 200, 0.12);
-    --border-glow:   rgba(99, 179, 237, 0.25);
-    --border-active: rgba(99, 179, 237, 0.5);
-    --text-primary:  #e8edf5;
-    --text-secondary:#8b9dc3;
-    --text-muted:    #5a6b8a;
-    --accent-blue:   #4f8ff7;
-    --accent-cyan:   #22d3ee;
-    --accent-teal:   #2dd4bf;
-    --accent-green:  #34d399;
-    --accent-red:    #f87171;
-    --accent-amber:  #fbbf24;
-    --accent-purple: #a78bfa;
-    --glass-bg:      rgba(13, 20, 40, 0.55);
-    --glass-border:  rgba(99, 179, 237, 0.15);
-    --glow-blue:     0 0 30px rgba(79, 143, 247, 0.12), 0 0 60px rgba(79, 143, 247, 0.06);
-    --glow-cyan:     0 0 30px rgba(34, 211, 238, 0.12), 0 0 60px rgba(34, 211, 238, 0.06);
-    --glow-green:    0 0 25px rgba(52, 211, 153, 0.12), 0 0 50px rgba(52, 211, 153, 0.06);
-    --glow-red:      0 0 25px rgba(248, 113, 113, 0.12), 0 0 50px rgba(248, 113, 113, 0.06);
-    --glow-purple:   0 0 30px rgba(167, 139, 250, 0.12);
-    --radius:        14px;
-    --radius-lg:     20px;
-    --radius-xl:     28px;
+    --bg-page:       #F0F4F8;
+    --bg-card:       #FFFFFF;
+    --bg-input:      #F7F9FC;
+    --border-light:  #E2E8F0;
+    --border-card:   #D8E2EE;
+    --text-primary:  #1E293B;
+    --text-secondary:#64748B;
+    --text-muted:    #94A3B8;
+    --blue-50:       #EFF6FF;
+    --blue-100:      #DBEAFE;
+    --blue-200:      #BFDBFE;
+    --blue-500:      #3B82F6;
+    --blue-600:      #2563EB;
+    --blue-700:      #1D4ED8;
+    --green-50:      #F0FDF4;
+    --green-100:     #DCFCE7;
+    --green-500:     #22C55E;
+    --green-600:     #16A34A;
+    --green-700:     #15803D;
+    --red-50:        #FEF2F2;
+    --red-100:       #FEE2E2;
+    --red-500:       #EF4444;
+    --red-600:       #DC2626;
+    --amber-50:      #FFFBEB;
+    --amber-100:     #FEF3C7;
+    --amber-500:     #F59E0B;
+    --radius:        12px;
+    --radius-lg:     16px;
+    --shadow-sm:     0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md:     0 4px 12px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04);
+    --shadow-lg:     0 10px 25px rgba(0,0,0,0.08), 0 4px 10px rgba(0,0,0,0.04);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 
 body, .gradio-container {
-    background: var(--bg-void) !important;
+    background: var(--bg-page) !important;
     color: var(--text-primary) !important;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-family: 'Nunito', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif !important;
     -webkit-font-smoothing: antialiased;
 }
 .gradio-container {
-    max-width: 1360px !important;
+    max-width: 960px !important;
     margin: 0 auto !important;
-    padding: 0 32px !important;
-    position: relative;
-    z-index: 1;
+    padding: 0 16px !important;
 }
-.dark .gradio-container { background: var(--bg-void) !important; }
+.dark .gradio-container {
+    background: var(--bg-page) !important;
+    color: var(--text-primary) !important;
+}
 footer { display: none !important; }
 
-/* Aurora Background */
-body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-        radial-gradient(ellipse 900px 600px at 15% 10%, rgba(79, 143, 247, 0.08), transparent 70%),
-        radial-gradient(ellipse 700px 500px at 85% 15%, rgba(167, 139, 250, 0.06), transparent 70%),
-        radial-gradient(ellipse 800px 450px at 50% 85%, rgba(34, 211, 238, 0.05), transparent 70%),
-        radial-gradient(ellipse 500px 400px at 75% 50%, rgba(244, 114, 182, 0.04), transparent 70%),
-        radial-gradient(ellipse 600px 350px at 25% 70%, rgba(52, 211, 153, 0.04), transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-    animation: auroraShift 25s ease-in-out infinite alternate;
-}
-body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-        radial-gradient(circle 180px at 20% 30%, rgba(79, 143, 247, 0.07), transparent),
-        radial-gradient(circle 120px at 70% 60%, rgba(167, 139, 250, 0.06), transparent),
-        radial-gradient(circle 150px at 50% 20%, rgba(34, 211, 238, 0.05), transparent);
-    pointer-events: none;
-    z-index: 0;
-    animation: orbFloat 30s ease-in-out infinite alternate-reverse;
-}
-@keyframes auroraShift {
-    0%   { opacity: 0.6; transform: scale(1) rotate(0deg); }
-    50%  { opacity: 1.0; transform: scale(1.02) rotate(0.5deg); }
-    100% { opacity: 0.7; transform: scale(0.98) rotate(-0.5deg); }
-}
-@keyframes orbFloat {
-    0%   { transform: translate(0, 0) scale(1); opacity: 0.7; }
-    33%  { transform: translate(30px, -20px) scale(1.1); opacity: 1; }
-    66%  { transform: translate(-20px, 15px) scale(0.95); opacity: 0.8; }
-    100% { transform: translate(10px, -10px) scale(1.05); opacity: 0.9; }
-}
+/* Remove any dark body overlays */
+body::before, body::after { display: none !important; }
 
-/* Hero Header */
-.hero-header {
+/* ──── App Header ──── */
+.app-header {
+    background: linear-gradient(135deg, var(--blue-600) 0%, #4F46E5 50%, var(--blue-700) 100%);
+    border-radius: 0 0 24px 24px;
+    padding: 28px 24px 22px;
     text-align: center;
-    padding: 48px 20px 36px;
-    position: relative;
-    z-index: 2;
-    margin-bottom: 8px;
+    margin: 0 -16px 20px;
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.25);
 }
-.hero-header .logo-icon {
-    font-size: 3.2em;
-    display: block;
-    margin-bottom: 12px;
-    filter: drop-shadow(0 0 30px rgba(79, 143, 247, 0.5)) drop-shadow(0 0 60px rgba(34, 211, 238, 0.3));
-    animation: logoPulse 4s ease-in-out infinite;
+.app-header .app-logo {
+    width: 52px; height: 52px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 14px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 1.6em;
+    margin-bottom: 10px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.15);
 }
-@keyframes logoPulse {
-    0%, 100% { filter: drop-shadow(0 0 30px rgba(79, 143, 247, 0.5)) drop-shadow(0 0 60px rgba(34, 211, 238, 0.3)); transform: scale(1); }
-    50%      { filter: drop-shadow(0 0 40px rgba(79, 143, 247, 0.7)) drop-shadow(0 0 80px rgba(34, 211, 238, 0.4)); transform: scale(1.05); }
-}
-.hero-header h1 {
-    font-family: 'Space Grotesk', 'Inter', sans-serif !important;
-    font-size: 3.4em !important;
-    font-weight: 800 !important;
-    background: linear-gradient(135deg, #60a5fa 0%, #22d3ee 25%, #34d399 50%, #a78bfa 75%, #60a5fa 100%);
-    background-size: 300% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.app-header h1 {
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 1.8em !important;
+    font-weight: 700 !important;
+    color: #FFFFFF !important;
     margin: 0 !important;
-    line-height: 1.1 !important;
-    letter-spacing: -0.03em;
-    animation: titleGradient 8s ease-in-out infinite;
+    letter-spacing: -0.01em;
 }
-@keyframes titleGradient {
-    0%, 100% { background-position: 0% center; }
-    50%      { background-position: 100% center; }
-}
-.hero-subtitle {
-    font-size: 1.15em;
-    color: var(--text-secondary);
+.app-header .app-subtitle {
+    font-size: 0.85em;
+    color: rgba(255,255,255,0.8);
+    margin-top: 4px;
     font-weight: 400;
+}
+.app-header .app-team {
+    font-size: 0.75em;
+    color: rgba(255,255,255,0.6);
     margin-top: 8px;
-    letter-spacing: 0.04em;
 }
-.hero-team {
-    font-size: 0.88em;
-    color: var(--text-muted);
-    margin-top: 10px;
-}
-.hero-team span {
-    color: var(--accent-cyan);
+.app-header .app-team strong {
+    color: rgba(255,255,255,0.9);
     font-weight: 600;
-    text-shadow: 0 0 20px rgba(34, 211, 238, 0.3);
 }
 
-/* Stat Badges */
-.stat-badges {
+/* ──── Stat Pills Row ──── */
+.stat-pills {
     display: flex;
-    justify-content: center;
-    gap: 14px;
-    margin-top: 24px;
-    flex-wrap: wrap;
-}
-.stat-badge {
-    display: inline-flex;
-    align-items: center;
     gap: 8px;
-    padding: 8px 18px;
-    background: rgba(13, 20, 40, 0.6);
-    border: 1px solid var(--border-subtle);
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 14px;
+}
+.stat-pill {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.12);
     border-radius: 100px;
-    font-size: 0.8em;
-    font-weight: 500;
-    color: var(--text-secondary);
-    backdrop-filter: blur(20px);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
+    padding: 5px 14px;
+    font-size: 0.7em;
+    color: rgba(255,255,255,0.9);
+    font-weight: 600;
+    backdrop-filter: blur(8px);
 }
-.stat-badge:hover {
-    border-color: var(--border-glow);
-    box-shadow: var(--glow-blue);
-    transform: translateY(-3px) scale(1.02);
-}
-.stat-badge .badge-val {
-    color: var(--text-primary);
-    font-weight: 700;
-    position: relative;
-    z-index: 1;
+.stat-pill .pill-val {
+    color: #FFFFFF;
+    font-weight: 800;
 }
 
-/* Status Banners */
-.status-banner-valid {
-    background: linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(34, 211, 238, 0.05));
-    border: 1px solid rgba(52, 211, 153, 0.25);
-    border-left: 5px solid var(--accent-green);
-    border-radius: var(--radius);
-    padding: 18px 24px;
-    margin: 14px 0 18px;
-    box-shadow: var(--glow-green);
-    backdrop-filter: blur(16px);
-    animation: bannerSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+/* ──── Card Containers ──── */
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 18px;
+    margin-bottom: 14px;
 }
-.status-banner-valid h3 {
-    color: #34d399 !important;
-    margin: 0 0 6px !important;
-    font-size: 1.08em !important;
-    font-family: 'Space Grotesk', sans-serif !important;
-    font-weight: 600 !important;
-    text-shadow: 0 0 20px rgba(52, 211, 153, 0.3);
-}
-.status-banner-valid p { color: var(--text-secondary); margin: 0; font-size: 0.92em; }
-
-.status-banner-invalid {
-    background: linear-gradient(135deg, rgba(248, 113, 113, 0.08), rgba(239, 68, 68, 0.04));
-    border: 1px solid rgba(248, 113, 113, 0.25);
-    border-left: 5px solid var(--accent-red);
-    border-radius: var(--radius);
-    padding: 18px 24px;
-    margin: 14px 0 18px;
-    box-shadow: var(--glow-red);
-    backdrop-filter: blur(16px);
-    animation: bannerSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.status-banner-invalid h3 {
-    color: #f87171 !important;
-    margin: 0 0 6px !important;
-    font-size: 1.08em !important;
-    font-family: 'Space Grotesk', sans-serif !important;
-    font-weight: 600 !important;
-}
-.status-banner-invalid p  { color: var(--text-secondary); margin: 0; font-size: 0.92em; }
-.status-banner-invalid ul { color: var(--text-secondary); margin: 8px 0 0 18px; font-size: 0.88em; padding: 0; }
-
-.status-banner-warning {
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.08), rgba(245, 158, 11, 0.04));
-    border: 1px solid rgba(251, 191, 36, 0.25);
-    border-left: 5px solid var(--accent-amber);
-    border-radius: var(--radius);
-    padding: 18px 24px;
-    margin: 14px 0 18px;
-    backdrop-filter: blur(16px);
-    animation: bannerSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.status-banner-warning h3 {
-    color: #fbbf24 !important;
-    margin: 0 0 6px !important;
-    font-size: 1.08em !important;
-    font-family: 'Space Grotesk', sans-serif !important;
-}
-.status-banner-warning p { color: var(--text-secondary); margin: 0; font-size: 0.92em; }
-
-@keyframes bannerSlideIn {
-    from { opacity: 0; transform: translateY(-12px) scale(0.98); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-/* Panel Headers */
-.panel-header {
-    padding: 18px 24px 14px;
-    border-bottom: 1px solid var(--border-subtle);
+.card-header {
     display: flex;
     align-items: center;
-    gap: 12px;
-    position: relative;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-light);
 }
-.panel-header::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 24px;
-    right: 24px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--border-glow), transparent);
-}
-.panel-header .panel-icon {
-    font-size: 1.3em;
-    width: 40px; height: 40px;
+.card-header .card-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
-    background: linear-gradient(135deg, rgba(79, 143, 247, 0.15), rgba(34, 211, 238, 0.1));
-    border-radius: 12px;
-    border: 1px solid rgba(79, 143, 247, 0.2);
-    box-shadow: 0 0 20px rgba(79, 143, 247, 0.1);
+    font-size: 1.1em;
 }
-.panel-header h3 {
-    font-family: 'Space Grotesk', 'Inter', sans-serif !important;
-    font-size: 1.08em !important;
+.card-icon-blue {
+    background: var(--blue-50);
+    color: var(--blue-600);
+    border: 1px solid var(--blue-200);
+}
+.card-icon-green {
+    background: var(--green-50);
+    color: var(--green-600);
+    border: 1px solid var(--green-100);
+}
+.card-header h3 {
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 0.95em !important;
     font-weight: 600 !important;
     color: var(--text-primary) !important;
     margin: 0 !important;
 }
-.panel-header .panel-tag {
-    font-size: 0.68em;
-    padding: 4px 12px;
-    background: linear-gradient(135deg, rgba(79, 143, 247, 0.12), rgba(167, 139, 250, 0.08));
-    color: var(--accent-blue);
+.card-header .card-tag {
+    font-size: 0.6em;
+    padding: 3px 10px;
+    background: var(--blue-50);
+    color: var(--blue-600);
     border-radius: 100px;
-    border: 1px solid rgba(79, 143, 247, 0.2);
-    font-weight: 600;
+    border: 1px solid var(--blue-200);
+    font-weight: 700;
     margin-left: auto;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
 }
 
-/* Buttons */
+/* ──── Status Banners ──── */
+.status-banner-valid {
+    background: var(--green-50);
+    border: 1px solid var(--green-100);
+    border-left: 4px solid var(--green-500);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin: 12px 0 16px;
+}
+.status-banner-valid h3 {
+    color: var(--green-700) !important;
+    margin: 0 0 4px !important;
+    font-size: 0.92em !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 600 !important;
+}
+.status-banner-valid p { color: var(--text-secondary); margin: 0; font-size: 0.85em; }
+
+.status-banner-invalid {
+    background: var(--red-50);
+    border: 1px solid var(--red-100);
+    border-left: 4px solid var(--red-500);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin: 12px 0 16px;
+}
+.status-banner-invalid h3 {
+    color: var(--red-600) !important;
+    margin: 0 0 4px !important;
+    font-size: 0.92em !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 600 !important;
+}
+.status-banner-invalid p  { color: var(--text-secondary); margin: 0; font-size: 0.85em; }
+.status-banner-invalid ul { color: var(--text-secondary); margin: 6px 0 0 16px; font-size: 0.82em; padding: 0; }
+
+.status-banner-warning {
+    background: var(--amber-50);
+    border: 1px solid var(--amber-100);
+    border-left: 4px solid var(--amber-500);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin: 12px 0 16px;
+}
+.status-banner-warning h3 {
+    color: #B45309 !important;
+    margin: 0 0 4px !important;
+    font-size: 0.92em !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 600 !important;
+}
+.status-banner-warning p { color: var(--text-secondary); margin: 0; font-size: 0.85em; }
+
+@keyframes bannerSlideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.status-banner-valid, .status-banner-invalid, .status-banner-warning {
+    animation: bannerSlideIn 0.35s ease-out;
+}
+
+/* ──── Buttons ──── */
 #analyze-btn {
-    background: linear-gradient(135deg, #4f8ff7 0%, #2563eb 50%, #4f8ff7 100%) !important;
-    background-size: 200% auto !important;
+    background: var(--blue-600) !important;
     border: none !important;
-    border-radius: 12px !important;
+    border-radius: var(--radius) !important;
     font-weight: 700 !important;
-    font-size: 1.02em !important;
-    padding: 14px 28px !important;
-    color: white !important;
-    box-shadow: 0 4px 20px rgba(79, 143, 247, 0.35), 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.15) !important;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    font-size: 0.95em !important;
+    padding: 12px 24px !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 3px 12px rgba(37, 99, 235, 0.3) !important;
+    transition: all 0.2s ease !important;
+    font-family: 'Poppins', sans-serif !important;
 }
 #analyze-btn:hover {
-    background-position: right center !important;
-    box-shadow: 0 8px 30px rgba(79, 143, 247, 0.5), 0 4px 12px rgba(0,0,0,0.4) !important;
-    transform: translateY(-2px) !important;
-}
-#clear-btn {
-    background: rgba(13, 20, 40, 0.6) !important;
-    border: 1px solid var(--border-subtle) !important;
-    border-radius: 12px !important;
-    color: var(--text-secondary) !important;
-    font-weight: 500 !important;
-    backdrop-filter: blur(10px) !important;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-#clear-btn:hover {
-    border-color: rgba(248, 113, 113, 0.4) !important;
-    color: var(--accent-red) !important;
+    background: var(--blue-700) !important;
+    box-shadow: 0 5px 18px rgba(37, 99, 235, 0.4) !important;
     transform: translateY(-1px) !important;
 }
-
-/* Gradio component overrides */
-.image-container, .upload-container {
-    background: var(--bg-secondary) !important;
-    border: 2px dashed rgba(100, 130, 200, 0.2) !important;
+#clear-btn {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-card) !important;
     border-radius: var(--radius) !important;
-    transition: all 0.4s ease !important;
+    color: var(--text-secondary) !important;
+    font-weight: 600 !important;
+    font-family: 'Poppins', sans-serif !important;
+    transition: all 0.2s ease !important;
+}
+#clear-btn:hover {
+    border-color: var(--red-500) !important;
+    color: var(--red-600) !important;
+    background: var(--red-50) !important;
+}
+
+/* ──── Gradio Component Overrides ──── */
+.image-container, .upload-container {
+    background: var(--bg-input) !important;
+    border: 2px dashed var(--border-light) !important;
+    border-radius: var(--radius) !important;
+    transition: all 0.2s ease !important;
 }
 .upload-container:hover {
-    border-color: var(--accent-blue) !important;
-    box-shadow: var(--glow-blue);
+    border-color: var(--blue-500) !important;
+    background: var(--blue-50) !important;
 }
-.label-wrap, label, .label-text { color: var(--text-secondary) !important; font-weight: 500 !important; }
+.label-wrap, label, .label-text {
+    color: var(--text-secondary) !important;
+    font-weight: 600 !important;
+    font-family: 'Nunito', sans-serif !important;
+}
 #confidence-bars .label-class-text { color: var(--text-primary) !important; }
-#confidence-bars .label-class-confidence { color: var(--accent-cyan) !important; font-weight: 700 !important; }
+#confidence-bars .label-class-confidence { color: var(--blue-600) !important; font-weight: 700 !important; }
 
-/* Markdown */
+/* ──── Markdown ──── */
 .prose, .markdown-text, .md { color: var(--text-secondary) !important; }
 .prose h3, .markdown-text h3, .md h3 {
     color: var(--text-primary) !important;
-    font-family: 'Space Grotesk', 'Inter', sans-serif !important;
+    font-family: 'Poppins', sans-serif !important;
 }
 .prose strong { color: var(--text-primary) !important; }
-.prose hr { border-color: var(--border-subtle) !important; }
+.prose hr { border-color: var(--border-light) !important; }
 
-/* Section dividers */
+/* ──── Section Dividers ──── */
 .section-divider {
     height: 1px;
-    background: linear-gradient(90deg, transparent 0%, rgba(100, 130, 200, 0.15) 20%, rgba(100, 130, 200, 0.15) 80%, transparent 100%);
-    margin: 24px 0;
+    background: var(--border-light);
+    margin: 18px 0;
     border: none;
 }
 
-/* About card */
+/* ──── About Card ──── */
 .about-card {
-    background: linear-gradient(135deg, var(--bg-card) 0%, rgba(13, 20, 40, 0.4) 100%);
-    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
     border-radius: var(--radius-lg);
-    padding: 28px 32px;
-    margin-top: 24px;
-    backdrop-filter: blur(20px);
+    padding: 20px 24px;
+    margin-top: 16px;
+    box-shadow: var(--shadow-sm);
     position: relative;
     overflow: hidden;
 }
@@ -429,44 +377,49 @@ body::after {
     content: '';
     position: absolute;
     top: 0; left: 0;
-    width: 100%; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+    width: 100%; height: 3px;
+    background: linear-gradient(90deg, var(--blue-500), #8B5CF6, var(--blue-500));
 }
-.about-card h3 { color: var(--accent-cyan) !important; text-shadow: 0 0 20px rgba(34, 211, 238, 0.2); }
+.about-card h3 {
+    color: var(--blue-700) !important;
+    font-family: 'Poppins', sans-serif !important;
+}
 
-/* Gallery */
+/* ──── Gallery ──── */
 .gallery-item {
     border-radius: var(--radius) !important;
-    border: 1px solid var(--border-subtle) !important;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: 1px solid var(--border-light) !important;
+    transition: all 0.2s ease !important;
+    background: var(--bg-card) !important;
 }
 .gallery-item:hover {
-    border-color: var(--accent-cyan) !important;
-    box-shadow: var(--glow-cyan);
-    transform: scale(1.06) translateY(-4px);
+    border-color: var(--blue-500) !important;
+    box-shadow: var(--shadow-md) !important;
+    transform: translateY(-2px);
 }
 
-/* Block backgrounds */
+/* ──── Block backgrounds ──── */
 .block, .form, .wrap { background: transparent !important; border: none !important; }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--bg-void); }
-::-webkit-scrollbar-thumb { background: rgba(100, 130, 200, 0.2); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(100, 130, 200, 0.35); }
+/* ──── Scrollbar ──── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-page); }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-/* Responsive */
+/* ──── Responsive ──── */
 @media (max-width: 768px) {
-    .hero-header h1 { font-size: 2.2em !important; }
-    .stat-badges { gap: 8px; }
-    .stat-badge { font-size: 0.72em; padding: 6px 12px; }
+    .app-header h1 { font-size: 1.5em !important; }
+    .stat-pills { gap: 6px; }
+    .stat-pill { font-size: 0.62em; padding: 4px 10px; }
+    .card { padding: 14px; }
 }
 
 @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(16px); }
+    from { opacity: 0; transform: translateY(12px); }
     to   { opacity: 1; transform: translateY(0); }
 }
-.animate-in { animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+.animate-in { animation: fadeInUp 0.4s ease-out forwards; }
 """
 
 
@@ -683,7 +636,9 @@ def predict_and_explain(image):
             "the Kermany OCT2017 dataset. It cannot meaningfully classify other image types.\n\n"
             "To make a prediction, please upload a genuine OCT scan."
         )
-        return ({c: 0.0 for c in CLASSES}, None, explanation, html_banner)
+        # Issue fix #2: Show "Invalid" instead of CNV when image is rejected
+        invalid_conf = {"Invalid": 0.0}
+        return (invalid_conf, None, explanation, html_banner)
 
     # Step 2: Preprocessing
     pil_img = Image.fromarray(image).convert("L")
@@ -721,7 +676,19 @@ def predict_and_explain(image):
         )
 
     # Step 6: Grad-CAM overlay
-    heatmap_resized = cv2.resize(heatmap, (display_img.shape[1], display_img.shape[0]))
+    # Issue fix #3: For NORMAL predictions, suppress the heatmap to avoid
+    # showing misleading "affected areas" when there is no pathology.
+    if pred_class == "NORMAL":
+        # Apply a high threshold so only very faint, distributed attention remains.
+        # This reflects that a healthy retina has no localized pathological focus.
+        threshold = 0.6
+        heatmap_suppressed = np.where(heatmap > threshold, heatmap * 0.15, heatmap * 0.05)
+        heatmap_suppressed = np.clip(heatmap_suppressed, 0, 1)
+        heatmap_for_overlay = heatmap_suppressed
+    else:
+        heatmap_for_overlay = heatmap
+
+    heatmap_resized = cv2.resize(heatmap_for_overlay, (display_img.shape[1], display_img.shape[0]))
     heatmap_color = cv2.applyColorMap(np.uint8(255 * heatmap_resized), cv2.COLORMAP_JET)
     heatmap_color = cv2.cvtColor(heatmap_color, cv2.COLOR_BGR2RGB)
     overlay = cv2.addWeighted(display_rgb, 0.55, heatmap_color, 0.45, 0)
@@ -731,18 +698,29 @@ def predict_and_explain(image):
 
     # Step 8: Clinical explanation
     desc = DESCRIPTIONS[pred_class]
+    if pred_class == "NORMAL":
+        gradcam_note = (
+            "For a **NORMAL** scan, the Grad-CAM heatmap is intentionally suppressed. "
+            "Since no pathology is detected, there are no specific abnormal regions to highlight. "
+            "The model confirmed intact retinal architecture across the scan."
+        )
+    else:
+        gradcam_note = (
+            f"The colored overlay shows the retinal region the model focused on. "
+            f"Red/yellow = high attention, blue = low attention. For a **{pred_class}** diagnosis, "
+            f"the model should attend to {desc['attention_region']}."
+        )
+
     explanation = (
-        f"### 🎯 Predicted Diagnosis: **{pred_class}** — {desc['full_name']}\n\n"
+        f"### Predicted Diagnosis: **{pred_class}** — {desc['full_name']}\n\n"
         f"**Confidence:** {confidence*100:.2f}%\n\n"
         f"**Clinical significance:** {desc['clinical']}\n\n"
         f"---\n\n"
-        f"### 🔍 Why this prediction?\n\n"
+        f"### Why this prediction?\n\n"
         f"{DYNAMIC_WHY[pred_class]}\n\n"
         f"---\n\n"
-        f"### 🔥 Grad-CAM Heatmap Interpretation\n\n"
-        f"The colored overlay shows the retinal region the model focused on. "
-        f"Red/yellow = high attention, blue = low attention. For a **{pred_class}** diagnosis, "
-        f"the model should attend to {desc['attention_region']}.\n\n"
+        f"### Grad-CAM Heatmap Interpretation\n\n"
+        f"{gradcam_note}\n\n"
         f"---\n\n"
         f"*Model: ConvNeXt-Tiny (28.5M parameters) · Trained on Kermany OCT2017 "
         f"(84,484 images) · Test accuracy: 99.90% · Grad-CAM target: model.features[-1]*"
@@ -763,38 +741,26 @@ if EXAMPLE_IMAGES_DIR.exists():
 
 
 # ================================================================
-# 10. GRADIO UI — PREMIUM DARK-MODE INTERFACE
+# 10. GRADIO UI — CLEAN LIGHT MOBILE-APP INTERFACE
 # ================================================================
 with gr.Blocks(title="RetinaScan AI") as demo:
 
-    # ──── HERO HEADER ────
+    # ──── APP HEADER ────
     gr.HTML("""
-    <div class="hero-header">
-        <span class="logo-icon">&#128300;</span>
+    <div class="app-header">
+        <div class="app-logo">&#128300;</div>
         <h1>RetinaScan AI</h1>
-        <div class="hero-subtitle">OCT Retinal Disease Classifier with Explainable AI</div>
-        <div class="hero-team">
-            <span>Murali A</span> &middot; <span>Niranjan T</span> &middot; <span>Praveen K</span>
-            &nbsp;|&nbsp; Guide: <span>Dr. C. Santhosh Kumar</span>
+        <div class="app-subtitle">OCT Retinal Disease Classifier with Explainable AI</div>
+        <div class="app-team">
+            <strong>Murali A</strong> &middot; <strong>Niranjan T</strong> &middot; <strong>Praveen K</strong>
+            &nbsp;|&nbsp; Guide: <strong>Dr. C. Santhosh Kumar</strong>
             &nbsp;|&nbsp; Sona College of Technology
         </div>
-        <div class="stat-badges">
-            <div class="stat-badge">
-                <span>&#129504;</span>
-                <span>Architecture: <span class="badge-val">ConvNeXt-Tiny</span></span>
-            </div>
-            <div class="stat-badge">
-                <span>&#127919;</span>
-                <span>Test Accuracy: <span class="badge-val">99.90%</span></span>
-            </div>
-            <div class="stat-badge">
-                <span>&#128202;</span>
-                <span>Parameters: <span class="badge-val">28.5M</span></span>
-            </div>
-            <div class="stat-badge">
-                <span>&#128065;</span>
-                <span>Classes: <span class="badge-val">CNV &middot; DME &middot; DRUSEN &middot; NORMAL</span></span>
-            </div>
+        <div class="stat-pills">
+            <span class="stat-pill">Architecture: <span class="pill-val">ConvNeXt-Tiny</span></span>
+            <span class="stat-pill">Accuracy: <span class="pill-val">99.90%</span></span>
+            <span class="stat-pill">Params: <span class="pill-val">28.5M</span></span>
+            <span class="stat-pill">Classes: <span class="pill-val">CNV · DME · DRUSEN · NORMAL</span></span>
         </div>
     </div>
     """)
@@ -807,10 +773,10 @@ with gr.Blocks(title="RetinaScan AI") as demo:
         # LEFT PANEL — Upload
         with gr.Column(scale=1):
             gr.HTML("""
-            <div class="panel-header">
-                <div class="panel-icon">&#128228;</div>
+            <div class="card-header">
+                <div class="card-icon card-icon-blue">&#128228;</div>
                 <h3>Upload OCT Scan</h3>
-                <span class="panel-tag">INPUT</span>
+                <span class="card-tag">INPUT</span>
             </div>
             """)
             gr.Markdown(
@@ -842,10 +808,10 @@ with gr.Blocks(title="RetinaScan AI") as demo:
         # RIGHT PANEL — Results
         with gr.Column(scale=1):
             gr.HTML("""
-            <div class="panel-header">
-                <div class="panel-icon">&#127919;</div>
-                <h3>Prediction &amp; Explanation</h3>
-                <span class="panel-tag">OUTPUT</span>
+            <div class="card-header">
+                <div class="card-icon card-icon-green">&#127919;</div>
+                <h3>Prediction & Explanation</h3>
+                <span class="card-tag">OUTPUT</span>
             </div>
             """)
             output_confidence = gr.Label(
@@ -865,8 +831,8 @@ with gr.Blocks(title="RetinaScan AI") as demo:
 
     # ──── CLINICAL INTERPRETATION ────
     gr.HTML("""
-    <div class="panel-header" style="padding-left:0;">
-        <div class="panel-icon" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.1)); border-color: rgba(16, 185, 129, 0.2);">&#129658;</div>
+    <div class="card-header" style="margin-bottom:8px;">
+        <div class="card-icon card-icon-green">&#129658;</div>
         <h3>Clinical Interpretation</h3>
     </div>
     """)
@@ -884,12 +850,12 @@ with gr.Blocks(title="RetinaScan AI") as demo:
     # ──── EXAMPLES GALLERY ────
     if example_list:
         gr.HTML("""
-        <div class="examples-wrapper">
-            <div class="panel-header" style="padding-left:0;">
-                <div class="panel-icon" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.1)); border-color: rgba(139, 92, 246, 0.2);">&#129514;</div>
+        <div>
+            <div class="card-header">
+                <div class="card-icon card-icon-blue">&#129514;</div>
                 <h3>Sample OCT Test Images</h3>
             </div>
-            <p style="color: var(--text-muted); font-size: 0.9em; margin-top: 4px;">Click any example below to auto-analyze it with the model.</p>
+            <p style="color: var(--text-muted); font-size: 0.85em; margin-top: 4px;">Click any example below to auto-analyze it with the model.</p>
         </div>
         """)
         gr.Examples(
@@ -908,24 +874,24 @@ with gr.Blocks(title="RetinaScan AI") as demo:
     # ──── ABOUT THE MODEL ────
     gr.HTML("""
     <div class="about-card">
-        <h3 style="font-family: 'Space Grotesk', sans-serif; margin-top: 0;">&#8505;&#65039; About the Model</h3>
-        <p style="color: #94a3b8; font-size: 0.92em; line-height: 1.7;">
-            This system uses <strong style="color: #f1f5f9;">ConvNeXt-Tiny</strong> (Liu et al., 2022) &mdash;
-            a modern CNN with <strong style="color: #f1f5f9;">28.5 million parameters</strong>
+        <h3 style="font-family: 'Poppins', sans-serif; margin-top: 0; font-size: 1.05em;">&#8505;&#65039; About the Model</h3>
+        <p style="color: var(--text-secondary); font-size: 0.88em; line-height: 1.7;">
+            This system uses <strong style="color: var(--text-primary);">ConvNeXt-Tiny</strong> (Liu et al., 2022) &mdash;
+            a modern CNN with <strong style="color: var(--text-primary);">28.5 million parameters</strong>
             &mdash; fine-tuned on the
-            <strong style="color: #f1f5f9;">Kermany OCT2017 dataset</strong>
+            <strong style="color: var(--text-primary);">Kermany OCT2017 dataset</strong>
             (84,484 labeled OCT retinal scans across 4 classes).
             On the held-out test set of 968 images, the model achieves
-            <strong style="color: #10b981;">99.90% accuracy</strong>
+            <strong style="color: var(--green-600);">99.90% accuracy</strong>
             (967/968 correctly classified).
         </p>
-        <p style="color: #94a3b8; font-size: 0.92em; line-height: 1.7; margin-top: 12px;">
-            <strong style="color: #06b6d4;">Interpretability:</strong>
+        <p style="color: var(--text-secondary); font-size: 0.88em; line-height: 1.7; margin-top: 10px;">
+            <strong style="color: var(--blue-600);">Interpretability:</strong>
             Every prediction is accompanied by a real-time Grad-CAM heatmap generated by hooking into
-            <code style="background: #111827; color: #06b6d4; padding: 2px 6px; border-radius: 4px; font-size: 0.88em;">model.features[-1]</code>.
+            <code style="background: #F1F5F9; color: var(--blue-600); padding: 2px 6px; border-radius: 4px; font-size: 0.85em;">model.features[-1]</code>.
         </p>
-        <p style="color: #94a3b8; font-size: 0.92em; line-height: 1.7; margin-top: 12px;">
-            <strong style="color: #8b5cf6;">Input Validation:</strong>
+        <p style="color: var(--text-secondary); font-size: 0.88em; line-height: 1.7; margin-top: 10px;">
+            <strong style="color: #7C3AED;">Input Validation:</strong>
             Five-signal validation pipeline &mdash; HSV saturation, RGB channel similarity,
             Laplacian variance, edge orientation analysis, and model confidence + entropy &mdash;
             ensures non-OCT images are rejected before or after inference.
@@ -962,7 +928,7 @@ with gr.Blocks(title="RetinaScan AI") as demo:
 # ================================================================
 if __name__ == "__main__":
     print("\n" + "=" * 60)
-    print("Starting RetinaScan AI (Premium Dark UI)...")
+    print("Starting RetinaScan AI (Light Mobile-App UI)...")
     print("=" * 60)
     demo.launch(
         share=False,
@@ -970,9 +936,9 @@ if __name__ == "__main__":
         show_error=True,
         server_name="127.0.0.1",
         server_port=7860,
-        theme=gr.themes.Base(
+        theme=gr.themes.Soft(
             primary_hue="blue",
-            secondary_hue="cyan",
+            secondary_hue="sky",
             neutral_hue="slate",
         ),
         css=CUSTOM_CSS,

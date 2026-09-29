@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}Analysis History — RetinaScan AI{% endblock %}
+{% block topbar_title %}Analysis History{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+    <div>
+        <h1>Analysis History</h1>
+        <p>Browse and search past OCT analyses.</p>
+    </div>
+    <a href="{{ url_for('analysis') }}" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M12 5v14M5 12h14"/></svg>
+        New Analysis
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header filter-bar">
+        <input type="text" class="filter-input" id="search-input" placeholder="Search by Scan ID..." oninput="filterTable()">
+        <select class="filter-select" id="class-filter" onchange="filterTable()">
+            <option value="">All Classes</option>
+            <option value="CNV">CNV</option>
+            <option value="DME">DME</option>
+            <option value="DRUSEN">DRUSEN</option>
+            <option value="NORMAL">NORMAL</option>
+            <option value="Invalid">Invalid</option>
+        </select>
+        <div style="flex:1;"></div>
+        <span style="font-size:0.78rem;color:var(--gray-400);" id="record-count">{{ records|length }} records</span>
+    </div>
+
+    {% if records %}
+    <table class="data-table" id="history-table">
+        <thead>
+            <tr>
+                <th>Scan ID</th>
+                <th>Date</th>
+                <th>Prediction</th>
+                <th>Confidence</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in records %}
+            <tr data-prediction="{{ r.prediction or 'Invalid' }}" data-scanid="{{ r.scan_id }}">
+                <td class="mono">{{ r.scan_id }}</td>
+                <td style="font-size:0.8rem;color:var(--gray-500);">{{ r.timestamp[:16].replace('T', ' ') }}</td>
+                <td>
+                    {% if r.prediction %}
+                    <span class="badge badge-{{ r.prediction|lower }}">{{ r.prediction }}</span>
+                    {% else %}
+                    <span class="badge badge-invalid">Invalid</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if r.valid %}
+                    <span style="font-family:var(--font-mono);font-weight:600;">{{ r.confidence }}%</span>
+                    {% else %}
+                    <span style="color:var(--gray-400);">—</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if r.status == 'high_confidence' %}
+                    <span class="badge badge-success">Complete</span>
+                    {% elif r.valid %}
+                    <span class="badge badge-warning">Review</span>
+                    {% else %}
+                    <span class="badge badge-error">Rejected</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if r.valid and r.prediction %}
+                    <a href="{{ url_for('result', scan_id=r.scan_id) }}" class="btn btn-sm btn-secondary">View</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="pagination" id="pagination"></div>
+    {% else %}
+    <div class="card-body">
+        <div class="empty-state">
+            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <h3>No analysis history</h3>
+            <p>Complete your first OCT analysis to see it here.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const ROWS_PER_PAGE = 15;
+let currentPage = 1;
+
+function filterTable() {
+    const search = document.getElementById('search-input').value.toLowerCase();
+    const classFilter = document.getElementById('class-filter').value;
+    const rows = document.querySelectorAll('#history-table tbody tr');
+    let visible = 0;
+
+    rows.forEach(row => {
+        const scanId = row.getAttribute('data-scanid').toLowerCase();
+        const prediction = row.getAttribute('data-prediction');
+        const matchSearch = scanId.includes(search);
+        const matchClass = !classFilter || prediction === classFilter;
+
+        if (matchSearch && matchClass) {
+            row.style.display = '';
+            visible++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    document.getElementById('record-count').textContent = visible + ' records';
+    currentPage = 1;
+    paginate();
+}
+
+function paginate() {
+    const rows = Array.from(document.querySelectorAll('#history-table tbody tr')).filter(r => r.style.display !== 'none');
+    const totalPages = Math.ceil(rows.length / ROWS_PER_PAGE);
+
+    rows.forEach((row, i) => {
+        row.style.display = (i >= (currentPage - 1) * ROWS_PER_PAGE && i < currentPage * ROWS_PER_PAGE) ? '' : 'none';
+    });
+
+    const pagination = document.getElementById('pagination');
+    if (totalPages <= 1) { pagination.innerHTML = ''; return; }
+
+    let html = '';
+    for (let p = 1; p <= totalPages; p++) {
+        html += `<button class="page-btn ${p === currentPage ? 'active' : ''}" onclick="goToPage(${p})">${p}</button>`;
+    }
+    pagination.innerHTML = html;
+}
+
+function goToPage(p) { currentPage = p; paginate(); }
+
+document.addEventListener('DOMContentLoaded', () => { if (document.getElementById('history-table')) paginate(); });
+</script>
+{% endblock %}

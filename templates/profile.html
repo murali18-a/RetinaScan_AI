@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Profile — RetinaScan AI{% endblock %}
+{% block topbar_title %}Profile{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Profile</h1>
+    <p>Your account information.</p>
+</div>
+
+<div style="max-width:640px;">
+    <div class="card">
+        <div class="card-body" style="text-align:center;padding:32px 24px 24px;">
+            <div style="width:72px;height:72px;border-radius:50%;background:var(--teal-100);color:var(--teal-700);display:inline-flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:700;margin-bottom:14px;">
+                {{ user.name[0] if user else 'U' }}
+            </div>
+            <div style="font-size:1.2rem;font-weight:700;color:var(--gray-900);">{{ user.name }}</div>
+            <div style="font-size:0.85rem;color:var(--gray-500);margin-top:2px;">{{ user.role }}</div>
+            <div style="margin-top:4px;">
+                <span class="badge badge-success">Active</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-16">
+        <div class="card-header"><span class="card-title">Account Details</span></div>
+        <div class="card-body-compact">
+            <table class="spec-table">
+                <tr><td>Full Name</td><td>{{ user.name }}</td></tr>
+                <tr><td>Email</td><td>{{ user.email }}</td></tr>
+                <tr><td>Role</td><td>{{ user.role }}</td></tr>
+                <tr><td>Institution</td><td>{{ user.institution }}</td></tr>
+                <tr><td>Account Type</td><td><span class="badge badge-warning" style="font-size:0.7rem;">Demo Account</span></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="card mt-16">
+        <div class="card-header"><span class="card-title">Quick Actions</span></div>
+        <div class="card-body" style="display:flex;gap:10px;flex-wrap:wrap;">
+            <a href="{{ url_for('analysis') }}" class="btn btn-primary btn-sm">New Analysis</a>
+            <a href="{{ url_for('history') }}" class="btn btn-secondary btn-sm">View History</a>
+            <a href="{{ url_for('settings') }}" class="btn btn-secondary btn-sm">Settings</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm">Sign Out</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — RetinaScan AI{% endblock %}
+{% block topbar_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Good {{ 'morning' if range(5,12).__contains__(now_hour) else ('afternoon' if range(12,17).__contains__(now_hour) else 'evening') if now_hour is defined else 'day' }}, {{ user.name.split(' ')[-1] if user else 'Researcher' }}</h1>
+    <p>OCT analysis overview and recent activity.</p>
+</div>
+
+<!-- KPI Cards -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-icon kpi-icon-teal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>
+        </div>
+        <div class="kpi-label">Total Scans</div>
+        <div class="kpi-value">{{ stats.total_scans }}</div>
+        <div class="kpi-sub">All uploaded scans</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon kpi-icon-green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="kpi-label">Analyses Completed</div>
+        <div class="kpi-value">{{ stats.completed }}</div>
+        <div class="kpi-sub">Valid OCT classifications</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon kpi-icon-blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+        </div>
+        <div class="kpi-label">Avg. Confidence</div>
+        <div class="kpi-value">{{ stats.avg_confidence }}%</div>
+        <div class="kpi-sub">Across valid analyses</div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon kpi-icon-amber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3l-4 4-4-4"/></svg>
+        </div>
+        <div class="kpi-label">Model Version</div>
+        <div class="kpi-value" style="font-size:1.1rem;">ConvNeXt-Tiny</div>
+        <div class="kpi-sub">28.5M parameters</div>
+    </div>
+</div>
+
+<div class="grid-2">
+    <!-- Recent Analyses -->
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Recent Analyses</span>
+            <a href="{{ url_for('history') }}" class="btn btn-sm btn-secondary">View All</a>
+        </div>
+        {% if recent %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Scan ID</th>
+                    <th>Prediction</th>
+                    <th>Confidence</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in recent[:6] %}
+                <tr>
+                    <td class="mono">{{ r.scan_id }}</td>
+                    <td>
+                        {% if r.prediction %}
+                        <span class="badge badge-{{ r.prediction|lower }}">{{ r.prediction }}</span>
+                        {% else %}
+                        <span class="badge badge-invalid">Invalid</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ r.confidence }}%</td>
+                    <td>
+                        {% if r.valid and r.prediction %}
+                        <a href="{{ url_for('result', scan_id=r.scan_id) }}" class="btn btn-sm btn-secondary">View</a>
+                        {% else %}
+                        <span style="color:var(--gray-400);font-size:0.8rem;">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="card-body">
+            <div class="empty-state">
+                <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                <h3>No analyses yet</h3>
+                <p>Upload your first OCT scan to get started.</p>
+                <a href="{{ url_for('analysis') }}" class="btn btn-primary btn-sm mt-16">New Analysis</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Class Distribution -->
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Class Distribution</span>
+            <span class="badge badge-success" style="font-size:0.68rem;">Application Usage</span>
+        </div>
+        <div class="card-body">
+            {% if stats.completed > 0 %}
+            <div class="chart-container" style="height:240px;">
+                <canvas id="classDistChart"></canvas>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+                <h3>No data yet</h3>
+                <p>Complete some analyses to see the distribution.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="disclaimer mt-24">
+    Dashboard statistics reflect application usage data, not clinical validation metrics. Model evaluation metrics are available on the <a href="{{ url_for('analytics') }}">Analytics</a> page.
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+{% if stats.completed > 0 %}
+const dist = {{ stats.class_distribution | tojson }};
+new Chart(document.getElementById('classDistChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['CNV', 'DME', 'DRUSEN', 'NORMAL'],
+        datasets: [{
+            data: [dist.CNV || 0, dist.DME || 0, dist.DRUSEN || 0, dist.NORMAL || 0],
+            backgroundColor: ['#F59E0B', '#EF4444', '#6366F1', '#22C55E'],
+            borderWidth: 2, borderColor: '#fff',
+        }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, font: { family: 'Inter', size: 12 } } } },
+        cutout: '60%',
+    }
+});
+{% endif %}
+</script>
+{% endblock %}

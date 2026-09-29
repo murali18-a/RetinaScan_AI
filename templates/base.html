@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}RetinaScan AI{% endblock %}</title>
+    <meta name="description" content="Explainable AI for Retinal OCT Analysis — ConvNeXt-Tiny classifier with Grad-CAM interpretability">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    {% block head %}{% endblock %}
+</head>
+<body>
+<div class="app-layout">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 5C5.636 5 2 12 2 12s3.636 7 10 7 10-7 10-7-3.636-7-10-7z"/></svg>
+            </div>
+            <div class="sidebar-brand-text">
+                <h2>RetinaScan AI</h2>
+                <span>OCT Analysis Platform</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="sidebar-section-label">Main</div>
+            <a href="{{ url_for('dashboard') }}" class="sidebar-link {% if page == 'dashboard' %}active{% endif %}">
+                <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('analysis') }}" class="sidebar-link {% if page == 'analysis' %}active{% endif %}">
+                <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/><circle cx="12" cy="12" r="10"/></svg>
+                <span>New Analysis</span>
+            </a>
+            <a href="{{ url_for('history') }}" class="sidebar-link {% if page == 'history' %}active{% endif %}">
+                <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>Analysis History</span>
+            </a>
+
+            <div class="sidebar-section-label">Research</div>
+            <a href="{{ url_for('analytics') }}" class="sidebar-link {% if page == 'analytics' %}active{% endif %}">
+                <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+                <span>Analytics</span>
+            </a>
+            <a href="{{ url_for('model_info') }}" class="sidebar-link {% if page == 'model_info' %}active{% endif %}">
+                <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3l-4 4-4-4"/></svg>
+                <span>Model Information</span>
+            </a>
+
+            <div class="sidebar-section-label">Account</div>
+            <a href="{{ url_for('settings') }}" class="sidebar-link {% if page == 'settings' %}active{% endif %}">
+                <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1.08-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1.08 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001.08 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1.08z"/></svg>
+                <span>Settings</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="sidebar-avatar">{{ user.name[0] if user else 'U' }}</div>
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-name">{{ user.name if user else 'User' }}</div>
+                    <div class="sidebar-user-role">{{ user.role if user else 'Analyst' }}</div>
+                </div>
+            </div>
+            <a href="{{ url_for('logout') }}" class="sidebar-signout">
+                <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                <span>Sign out</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ── MAIN ── -->
+    <div class="app-main">
+        <header class="topbar">
+            <div class="topbar-title">{% block topbar_title %}Dashboard{% endblock %}</div>
+            <div class="topbar-actions">
+                <button class="topbar-btn" title="Notifications">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+                </button>
+                <a href="{{ url_for('profile') }}" class="topbar-btn" title="Profile">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </a>
+            </div>
+        </header>
+
+        <main class="app-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `<span>${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3500);
+}
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
