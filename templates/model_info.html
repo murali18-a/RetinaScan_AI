@@ -12,7 +12,7 @@
 <div class="card mb-24">
     <div class="card-header"><span class="card-title">Architecture Overview</span></div>
     <div class="card-body">
-        <div class="grid-2" style="gap:32px;">
+        <div class="grid-2" style="gap:28px;">
             <div>
                 <table class="spec-table">
                     <tr><td>Architecture</td><td>ConvNeXt-Tiny (Liu et al., 2022)</td></tr>
@@ -22,15 +22,15 @@
                     <tr><td>Classes</td><td>CNV, DME, DRUSEN, NORMAL</td></tr>
                     <tr><td>Dataset</td><td>Kermany OCT2017 (84,484 images)</td></tr>
                     <tr><td>Test Accuracy</td><td>99.90% (967/968)</td></tr>
-                    <tr><td>Explainability</td><td>Grad-CAM (model.features[-1])</td></tr>
+                    <tr><td>Explainability</td><td style="font-family:var(--font-mono);font-size:0.82rem;">Grad-CAM (model.features[-1])</td></tr>
                 </table>
             </div>
             <div>
-                <div style="font-size:0.78rem;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:12px;">Model Summary</div>
-                <p style="font-size:0.85rem;color:var(--gray-600);line-height:1.7;">
-                    ConvNeXt-Tiny is a pure convolutional architecture that modernizes the ResNet design using techniques from vision transformers — including larger kernel sizes (7×7), GELU activations, LayerNorm, and fewer activation functions. The model achieves competitive performance with ViT-based architectures while maintaining the simplicity and efficiency of CNNs.
+                <div style="font-size:0.72rem;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Model Summary</div>
+                <p style="font-size:0.83rem;color:var(--gray-600);line-height:1.7;">
+                    ConvNeXt-Tiny is a pure convolutional architecture that modernizes the ResNet design using techniques from vision transformers — including larger kernel sizes (7&times;7), GELU activations, LayerNorm, and fewer activation functions. The model achieves competitive performance with ViT-based architectures while maintaining the simplicity and efficiency of CNNs.
                 </p>
-                <p style="font-size:0.85rem;color:var(--gray-600);line-height:1.7;margin-top:10px;">
+                <p style="font-size:0.83rem;color:var(--gray-600);line-height:1.7;margin-top:8px;">
                     The classifier head has been replaced with a single linear layer mapping 768 features to 4 output classes, fine-tuned end-to-end on the OCT2017 training split.
                 </p>
             </div>
@@ -44,17 +44,17 @@
     <div class="card-body">
         <div class="pipeline">
             <div class="pipeline-step">OCT B-scan Input</div>
-            <div class="pipeline-arrow">→</div>
-            <div class="pipeline-step">Input Validation<br><span style="font-size:0.65rem;color:var(--gray-400);">5-signal pipeline</span></div>
-            <div class="pipeline-arrow">→</div>
-            <div class="pipeline-step">Preprocessing<br><span style="font-size:0.65rem;color:var(--gray-400);">Grayscale → 224×224 → Normalize</span></div>
-            <div class="pipeline-arrow">→</div>
-            <div class="pipeline-step highlight">ConvNeXt-Tiny<br><span style="font-size:0.65rem;">Forward Pass</span></div>
-            <div class="pipeline-arrow">→</div>
-            <div class="pipeline-step">Classification<br><span style="font-size:0.65rem;color:var(--gray-400);">Softmax → 4 classes</span></div>
-            <div class="pipeline-arrow">→</div>
-            <div class="pipeline-step highlight">Grad-CAM<br><span style="font-size:0.65rem;">Backprop → Heatmap</span></div>
-            <div class="pipeline-arrow">→</div>
+            <div class="pipeline-arrow">&rarr;</div>
+            <div class="pipeline-step">Input Validation<br><span style="font-size:0.63rem;color:var(--gray-400);">5-signal pipeline</span></div>
+            <div class="pipeline-arrow">&rarr;</div>
+            <div class="pipeline-step">Preprocessing<br><span style="font-size:0.63rem;color:var(--gray-400);">Grayscale &rarr; 224&times;224 &rarr; Normalize</span></div>
+            <div class="pipeline-arrow">&rarr;</div>
+            <div class="pipeline-step highlight">ConvNeXt-Tiny<br><span style="font-size:0.63rem;">Forward Pass</span></div>
+            <div class="pipeline-arrow">&rarr;</div>
+            <div class="pipeline-step">Classification<br><span style="font-size:0.63rem;color:var(--gray-400);">Softmax &rarr; 4 classes</span></div>
+            <div class="pipeline-arrow">&rarr;</div>
+            <div class="pipeline-step highlight">Grad-CAM<br><span style="font-size:0.63rem;">Backprop &rarr; Heatmap</span></div>
+            <div class="pipeline-arrow">&rarr;</div>
             <div class="pipeline-step">Visual Explanation</div>
         </div>
     </div>
@@ -66,7 +66,7 @@
         <div class="card-header"><span class="card-title">Training Configuration</span></div>
         <div class="card-body-compact">
             <table class="spec-table">
-                <tr><td>Input Size</td><td>224 × 224 × 3</td></tr>
+                <tr><td>Input Size</td><td>224 &times; 224 &times; 3</td></tr>
                 <tr><td>Optimizer</td><td>AdamW</td></tr>
                 <tr><td>Learning Rate</td><td>1e-4</td></tr>
                 <tr><td>Weight Decay</td><td>1e-4</td></tr>
@@ -84,7 +84,7 @@
             <table class="spec-table">
                 <tr><td>Step 1</td><td>Convert to grayscale (1 channel)</td></tr>
                 <tr><td>Step 2</td><td>Replicate to 3 channels (for ImageNet compatibility)</td></tr>
-                <tr><td>Step 3</td><td>Resize to 224 × 224</td></tr>
+                <tr><td>Step 3</td><td>Resize to 224 &times; 224</td></tr>
                 <tr><td>Step 4</td><td>Convert to tensor [0, 1]</td></tr>
                 <tr><td>Step 5</td><td>Normalize with ImageNet mean/std</td></tr>
                 <tr><td>Mean</td><td>[0.485, 0.456, 0.406]</td></tr>
@@ -98,7 +98,7 @@
 <div class="card mb-24">
     <div class="card-header"><span class="card-title">Input Validation Pipeline</span></div>
     <div class="card-body">
-        <p style="font-size:0.85rem;color:var(--gray-600);margin-bottom:16px;">
+        <p style="font-size:0.83rem;color:var(--gray-600);margin-bottom:14px;">
             A five-signal heuristic pipeline validates that uploaded images are genuine OCT B-scans before and after model inference.
         </p>
         <table class="data-table">
@@ -122,19 +122,19 @@
     <div class="card-body">
         <div class="grid-2" style="gap:24px;">
             <div>
-                <p style="font-size:0.85rem;color:var(--gray-600);line-height:1.7;">
+                <p style="font-size:0.83rem;color:var(--gray-600);line-height:1.7;">
                     <strong style="color:var(--gray-800);">Gradient-weighted Class Activation Mapping (Grad-CAM)</strong> produces
                     visual explanations by computing the gradient of the predicted class score with respect to the feature maps of
-                    <code style="background:var(--gray-100);padding:2px 6px;border-radius:4px;font-size:0.82rem;">model.features[-1]</code>
+                    <code style="background:var(--gray-100);padding:2px 6px;border-radius:3px;font-size:0.8rem;">model.features[-1]</code>
                     (the last convolutional block).
                 </p>
-                <p style="font-size:0.85rem;color:var(--gray-600);line-height:1.7;margin-top:12px;">
+                <p style="font-size:0.83rem;color:var(--gray-600);line-height:1.7;margin-top:10px;">
                     The resulting heatmap is overlaid on the original OCT scan to highlight regions that contributed most to the model's prediction. For NORMAL predictions, the heatmap is intentionally suppressed to avoid showing misleading pathological focus.
                 </p>
             </div>
             <div>
                 <table class="spec-table">
-                    <tr><td>Target Layer</td><td><code style="font-size:0.82rem;">model.features[-1]</code></td></tr>
+                    <tr><td>Target Layer</td><td><code style="font-size:0.8rem;">model.features[-1]</code></td></tr>
                     <tr><td>Method</td><td>Gradient-weighted Class Activation Mapping</td></tr>
                     <tr><td>Colormap</td><td>JET (OpenCV)</td></tr>
                     <tr><td>Blend Ratio</td><td>55% original / 45% heatmap</td></tr>

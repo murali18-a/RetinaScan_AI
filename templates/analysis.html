@@ -30,15 +30,15 @@
                     <div class="image-preview" id="image-preview">
                         <img id="preview-img" src="" alt="OCT scan preview">
                     </div>
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
                         <div>
-                            <div id="file-name" style="font-size:0.85rem;font-weight:600;color:var(--gray-700);"></div>
-                            <div id="file-size" style="font-size:0.75rem;color:var(--gray-400);margin-top:2px;"></div>
+                            <div id="file-name" style="font-size:0.83rem;font-weight:600;color:var(--gray-700);"></div>
+                            <div id="file-size" style="font-size:0.72rem;color:var(--gray-400);margin-top:1px;"></div>
                         </div>
                         <button class="btn btn-sm btn-secondary" onclick="resetUpload()">Remove</button>
                     </div>
                     <button class="btn btn-primary btn-lg mt-16" id="analyze-btn" onclick="runAnalysis()" style="width:100%;">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
                         Analyze Scan
                     </button>
                 </div>
@@ -47,16 +47,16 @@
 
         <!-- Example Images -->
         {% if examples %}
-        <div class="card">
+        <div class="card mt-16">
             <div class="card-header">
                 <span class="card-title">Sample Images</span>
-                <span style="font-size:0.72rem;color:var(--gray-400);">Click to load</span>
+                <span style="font-size:0.7rem;color:var(--gray-400);">Click to analyze</span>
             </div>
-            <div class="card-body" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+            <div class="card-body" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
                 {% for ex in examples %}
-                <div style="cursor:pointer;border:1px solid var(--gray-200);border-radius:var(--radius-md);overflow:hidden;transition:all 0.15s;" onclick="loadExample('{{ ex.filename }}')" onmouseover="this.style.borderColor='var(--teal-400)'" onmouseout="this.style.borderColor='var(--gray-200)'">
-                    <img src="{{ url_for('serve_demo_image', filename=ex.filename) }}" alt="{{ ex.class }}" style="width:100%;display:block;aspect-ratio:1;">
-                    <div style="padding:4px 6px;font-size:0.68rem;font-weight:600;color:var(--gray-600);text-align:center;background:var(--gray-50);">{{ ex.class }}</div>
+                <div style="cursor:pointer;border:1px solid var(--gray-200);border-radius:var(--radius-sm);overflow:hidden;transition:border-color 0.12s;" onclick="loadExample('{{ ex.filename }}')" onmouseover="this.style.borderColor='var(--navy-500)'" onmouseout="this.style.borderColor='var(--gray-200)'">
+                    <img src="{{ url_for('serve_demo_image', filename=ex.filename) }}" alt="{{ ex.class }}" style="width:100%;display:block;aspect-ratio:1;object-fit:cover;">
+                    <div style="padding:3px 5px;font-size:0.66rem;font-weight:600;color:var(--gray-600);text-align:center;background:var(--gray-50);">{{ ex.class }}</div>
                 </div>
                 {% endfor %}
             </div>
@@ -77,7 +77,7 @@
         <!-- Initial empty state -->
         <div class="card" id="empty-result">
             <div class="card-body">
-                <div class="empty-state" style="padding:64px 24px;">
+                <div class="empty-state" style="padding:56px 20px;">
                     <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 5C5.636 5 2 12 2 12s3.636 7 10 7 10-7 10-7-3.636-7-10-7z"/></svg>
                     <h3>No analysis results</h3>
                     <p>Upload an OCT scan and click "Analyze Scan" to see the prediction and Grad-CAM explanation.</p>
@@ -87,10 +87,10 @@
 
         <!-- Loading state -->
         <div class="card" id="loading-card" style="display:none;">
-            <div class="card-body" style="text-align:center;padding:64px;">
-                <div class="spinner" style="margin:0 auto 16px;width:28px;height:28px;"></div>
-                <p style="font-size:0.85rem;color:var(--gray-500);">Running inference...</p>
-                <p style="font-size:0.75rem;color:var(--gray-400);margin-top:4px;">Validating input, classifying, generating Grad-CAM</p>
+            <div class="card-body" style="text-align:center;padding:56px;">
+                <div class="spinner" style="margin:0 auto 14px;width:24px;height:24px;"></div>
+                <p style="font-size:0.83rem;color:var(--gray-500);">Running inference...</p>
+                <p style="font-size:0.72rem;color:var(--gray-400);margin-top:3px;">Validating input, classifying, generating Grad-CAM</p>
             </div>
         </div>
     </div>
@@ -170,7 +170,7 @@ function runAnalysis() {
     if (!selectedFile) return;
     const btn = document.getElementById('analyze-btn');
     btn.disabled = true;
-    btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;"></div> Analyzing...';
+    btn.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px;"></div> Analyzing...';
 
     document.getElementById('empty-result').style.display = 'none';
     document.getElementById('result-card').style.display = 'none';
@@ -184,7 +184,7 @@ function runAnalysis() {
         .then(data => {
             displayResult(data);
             btn.disabled = false;
-            btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg> Analyze Scan';
+            btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg> Analyze Scan';
         })
         .catch(err => {
             document.getElementById('loading-card').style.display = 'none';
@@ -201,20 +201,74 @@ function displayResult(data) {
     if (!data.valid) {
         document.getElementById('result-card').style.display = 'block';
         document.getElementById('result-status-badge').className = 'badge badge-error';
-        document.getElementById('result-status-badge').textContent = 'Invalid Input';
+        document.getElementById('result-status-badge').textContent = 'Unsupported Image';
+
+        let reasonsHTML = '';
+        if (data.rejection_reasons && data.rejection_reasons.length > 0) {
+            reasonsHTML = data.rejection_reasons.map(r => `<div style="margin-top:3px;font-size:0.78rem;">&bull; ${r}</div>`).join('');
+        } else {
+            reasonsHTML = '<div style="margin-top:3px;font-size:0.78rem;">The image does not appear to be an OCT retinal scan.</div>';
+        }
+
+        let validationScoresHTML = '';
+        if (data.input_validation) {
+            const iv = data.input_validation;
+            if (iv.feature_similarity !== undefined) {
+                validationScoresHTML = `
+                    <div style="margin-top:12px;padding:10px 12px;background:var(--gray-50);border-radius:var(--radius-sm);border:1px solid var(--gray-100);">
+                        <div style="font-size:0.68rem;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Validation Details</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+                            <div style="font-size:0.76rem;color:var(--gray-500);">Feature Similarity</div>
+                            <div style="font-size:0.76rem;font-weight:600;color:var(--gray-700);text-align:right;">${(iv.feature_similarity * 100).toFixed(1)}%</div>
+                            <div style="font-size:0.76rem;color:var(--gray-500);">Structural Score</div>
+                            <div style="font-size:0.76rem;font-weight:600;color:var(--gray-700);text-align:right;">${(iv.structural_score * 100).toFixed(1)}%</div>
+                            <div style="font-size:0.76rem;color:var(--gray-500);">Combined Score</div>
+                            <div style="font-size:0.76rem;font-weight:600;color:var(--gray-700);text-align:right;">${(iv.combined_score * 100).toFixed(1)}%</div>
+                        </div>
+                    </div>`;
+            }
+        }
+
         document.getElementById('result-body').innerHTML = `
-            <div class="alert alert-error">
-                <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
-                <div>
-                    <strong>Not a valid OCT scan</strong>
-                    <div style="margin-top:4px;font-size:0.8rem;">${data.rejection_reasons ? data.rejection_reasons.join('<br>') : 'The image does not appear to be an OCT retinal scan.'}</div>
+            <div style="text-align:center;padding:16px 0 6px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:40px;height:40px;color:var(--red-500);margin-bottom:10px;">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M15 9l-6 6M9 9l6 6"/>
+                </svg>
+                <div style="font-size:1.1rem;font-weight:700;color:var(--gray-900);margin-bottom:3px;">Unsupported Image</div>
+                <div style="font-size:0.83rem;color:var(--gray-500);max-width:320px;margin:0 auto;">
+                    The uploaded image does not appear to be a valid retinal OCT B-scan.
                 </div>
             </div>
-            <p style="font-size:0.82rem;color:var(--gray-500);">Please upload a grayscale OCT B-scan image.</p>`;
+
+            <div class="alert alert-error" style="margin-top:14px;">
+                <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                <div>
+                    <strong>Validation Status: Rejected</strong>
+                    ${reasonsHTML}
+                </div>
+            </div>
+
+            ${validationScoresHTML}
+
+            <div style="margin-top:14px;padding:10px 12px;background:var(--blue-50);border:1px solid var(--blue-100);border-radius:var(--radius-sm);">
+                <div style="font-size:0.8rem;color:var(--blue-700);">
+                    <strong>Action Required:</strong> Please upload a retinal OCT B-scan image for analysis.
+                    The system supports grayscale OCT B-scan images in JPEG or PNG format.
+                </div>
+            </div>
+
+            <div style="text-align:center;margin-top:16px;">
+                <button class="btn btn-primary" onclick="resetUpload()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    Upload Another Image
+                </button>
+            </div>`;
+
+        showToast('Image rejected — not a valid OCT scan', 'error');
         return;
     }
 
-    const colors = { CNV: '#F59E0B', DME: '#EF4444', DRUSEN: '#6366F1', NORMAL: '#22C55E' };
     const badgeClass = data.prediction ? 'badge-' + data.prediction.toLowerCase() : '';
     const statusBadge = data.status === 'high_confidence' ? 'badge-success' : 'badge-warning';
     const statusText = data.status === 'high_confidence' ? 'High Confidence' : 'Moderate';
@@ -222,6 +276,22 @@ function displayResult(data) {
     document.getElementById('result-card').style.display = 'block';
     document.getElementById('result-status-badge').className = 'badge ' + statusBadge;
     document.getElementById('result-status-badge').textContent = statusText;
+
+    // Input validation section
+    let validationHTML = '';
+    if (data.input_validation) {
+        const iv = data.input_validation;
+        validationHTML = `
+        <div style="margin-bottom:14px;padding:10px 14px;background:var(--green-50);border:1px solid var(--green-100);border-radius:var(--radius-sm);">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--green-600);"><path d="M20 6L9 17l-5-5"/></svg>
+                <span style="font-size:0.8rem;font-weight:600;color:var(--green-700);">Input Validation: Valid OCT Image</span>
+            </div>
+            ${iv.combined_score !== undefined ? `
+            <div style="font-size:0.72rem;color:var(--green-600);">OCT Domain Score: ${(iv.combined_score * 100).toFixed(1)}%</div>
+            ` : ''}
+        </div>`;
+    }
 
     let probsHTML = '';
     const sorted = Object.entries(data.probabilities).sort((a, b) => b[1] - a[1]);
@@ -234,16 +304,17 @@ function displayResult(data) {
     }
 
     document.getElementById('result-body').innerHTML = `
-        <div style="margin-bottom:18px;">
-            <div style="font-size:0.75rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.04em;">Model Prediction</div>
-            <div class="prediction-class" style="margin-top:4px;">${data.prediction}</div>
+        ${validationHTML}
+        <div style="margin-bottom:16px;">
+            <div style="font-size:0.7rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;">Model Prediction</div>
+            <div class="prediction-class" style="margin-top:3px;">${data.prediction}</div>
             <div class="prediction-full-name">${data.prediction_full}</div>
-            <div style="font-size:0.85rem;color:var(--gray-600);margin-top:8px;">${data.clinical_description}</div>
+            <div style="font-size:0.83rem;color:var(--gray-600);margin-top:6px;">${data.clinical_description}</div>
         </div>
-        <div style="margin-bottom:20px;">${probsHTML}</div>
+        <div style="margin-bottom:18px;">${probsHTML}</div>
 
-        <div style="margin-bottom:18px;">
-            <div style="font-size:0.82rem;font-weight:600;color:var(--gray-700);margin-bottom:8px;">Grad-CAM Explainability</div>
+        <div style="margin-bottom:16px;">
+            <div style="font-size:0.8rem;font-weight:600;color:var(--gray-700);margin-bottom:8px;">Grad-CAM Explainability</div>
             <div class="gradcam-grid">
                 <div class="gradcam-panel">
                     <div class="gradcam-panel-label">Original</div>
@@ -260,19 +331,59 @@ function displayResult(data) {
             </div>
         </div>
 
-        <div style="font-size:0.82rem;color:var(--gray-600);margin-bottom:8px;">
+        <div style="font-size:0.8rem;color:var(--gray-600);margin-bottom:6px;">
             <strong style="color:var(--gray-700);">Attention Region:</strong> ${data.attention_region}
         </div>
-        <div style="font-size:0.82rem;color:var(--gray-600);margin-bottom:12px;">
+        <div style="font-size:0.8rem;color:var(--gray-600);margin-bottom:12px;">
             <strong style="color:var(--gray-700);">Interpretation:</strong> ${data.interpretation}
         </div>
 
-        <div style="text-align:center;margin-top:14px;">
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap;">
             <a href="/result/${data.scan_id}" class="btn btn-sm btn-secondary">View Full Report</a>
+            <button class="btn btn-sm btn-primary" id="download-report-btn" onclick="downloadReport('${data.scan_id}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                Download PDF
+            </button>
         </div>
     `;
 
     showToast('Analysis complete — ' + data.prediction + ' (' + data.confidence + '%)', 'success');
+}
+
+function downloadReport(scanId) {
+    const btn = document.getElementById('download-report-btn');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner" style="width:13px;height:13px;border-width:2px;"></div> Generating...';
+    }
+
+    fetch(`/api/report/${scanId}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Report generation failed');
+            return response.blob();
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `RetinaScan_Report_${scanId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Download PDF';
+            }
+            showToast('Report downloaded successfully', 'success');
+        })
+        .catch(err => {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = 'Download PDF';
+            }
+            showToast('Unable to generate report. Please try again.', 'error');
+        });
 }
 </script>
 {% endblock %}

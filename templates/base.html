@@ -12,8 +12,11 @@
 <body>
 <div class="app-layout">
 
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
     <!-- ── SIDEBAR ── -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
             <div class="sidebar-brand-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 5C5.636 5 2 12 2 12s3.636 7 10 7 10-7 10-7-3.636-7-10-7z"/></svg>
@@ -57,13 +60,13 @@
         </nav>
 
         <div class="sidebar-footer">
-            <div class="sidebar-user">
+            <a href="{{ url_for('profile') }}" class="sidebar-user" style="text-decoration:none;">
                 <div class="sidebar-avatar">{{ user.name[0] if user else 'U' }}</div>
                 <div class="sidebar-user-info">
                     <div class="sidebar-user-name">{{ user.name if user else 'User' }}</div>
                     <div class="sidebar-user-role">{{ user.role if user else 'Analyst' }}</div>
                 </div>
-            </div>
+            </a>
             <a href="{{ url_for('logout') }}" class="sidebar-signout">
                 <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
                 <span>Sign out</span>
@@ -74,6 +77,9 @@
     <!-- ── MAIN ── -->
     <div class="app-main">
         <header class="topbar">
+            <button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+            </button>
             <div class="topbar-title">{% block topbar_title %}Dashboard{% endblock %}</div>
             <div class="topbar-actions">
                 <button class="topbar-btn" title="Notifications">
@@ -100,7 +106,15 @@ function showToast(message, type = 'success') {
     toast.className = `toast toast-${type}`;
     toast.innerHTML = `<span>${message}</span>`;
     container.appendChild(toast);
-    setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3500);
+    setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.25s'; setTimeout(() => toast.remove(), 250); }, 3500);
+}
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebar-overlay').classList.toggle('visible');
+}
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('visible');
 }
 </script>
 {% block scripts %}{% endblock %}

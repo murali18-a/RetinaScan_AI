@@ -18,6 +18,7 @@ from PIL import Image
 from flask import (
     Flask, render_template, request, jsonify,
     redirect, url_for, session, send_from_directory,
+    make_response,
 )
 
 # Ensure project root is on path
@@ -87,10 +88,12 @@ def logout():
 def dashboard():
     stats = get_statistics()
     recent = load_history()[:8]
+    now_hour = datetime.now().hour
     return render_template("dashboard.html",
                            page="dashboard",
                            stats=stats,
                            recent=recent,
+                           now_hour=now_hour,
                            user=session.get("user", DEMO_USER))
 
 
@@ -280,6 +283,33 @@ def serve_demo_image(filename):
 @app.route("/project-asset/<path:filename>")
 def serve_project_asset(filename):
     return send_from_directory(str(BASE_DIR), filename)
+
+
+# ================================================================
+# PDF REPORT ENDPOINT
+# ================================================================
+@app.route("/api/report/<scan_id>")
+@login_required
+def api_report(scan_id):
+    """Generate and download a PDF report for a specific analysis."""
+    record = get_analysis_by_id(scan_id)
+    if not record:
+        return jsonify({"error": "Analysis not found"}), 404
+
+    try:
+        from backend.report_generator import generate_report_pdf
+        pdf_bytes = generate_report_pdf(record)
+
+        response = make_response(pdf_bytes)
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = (
+            f'attachment; filename=RetinaScan_Report_{scan_id}.pdf'
+        )
+        return response
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": f"Failed to generate report: {str(e)}"}), 500
 
 
 # ================================================================

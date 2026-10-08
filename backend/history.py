@@ -46,6 +46,7 @@ def save_analysis(result):
         "original_b64": result.get("original_b64"),
         "heatmap_b64": result.get("heatmap_b64"),
         "overlay_b64": result.get("overlay_b64"),
+        "input_validation": result.get("input_validation", {}),
     }
 
     history.insert(0, record)

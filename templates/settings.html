@@ -14,7 +14,7 @@
     <p>Update your account information.</p>
     <div class="card">
         <div class="card-body">
-            <div class="grid-2" style="gap:20px;">
+            <div class="grid-2" style="gap:18px;">
                 <div class="form-group">
                     <label class="form-label">Full Name</label>
                     <input class="form-input" type="text" value="{{ user.name }}" disabled>
@@ -45,7 +45,7 @@
         <div class="card-body">
             <div class="form-group">
                 <label class="form-label">Theme</label>
-                <select class="filter-select" style="width:200px;" disabled>
+                <select class="filter-select" style="width:180px;" disabled>
                     <option selected>Light</option>
                 </select>
                 <div class="form-hint">Only light theme is available.</div>
@@ -96,8 +96,8 @@
         <div class="card-body">
             <div style="display:flex;justify-content:space-between;align-items:center;">
                 <div>
-                    <div style="font-size:0.85rem;font-weight:600;color:var(--gray-700);">Clear Analysis History</div>
-                    <div style="font-size:0.78rem;color:var(--gray-500);margin-top:2px;">Remove all stored analysis records. This cannot be undone.</div>
+                    <div style="font-size:0.83rem;font-weight:600;color:var(--gray-700);">Clear Analysis History</div>
+                    <div style="font-size:0.76rem;color:var(--gray-500);margin-top:2px;">Remove all stored analysis records. This cannot be undone.</div>
                 </div>
                 <button class="btn btn-danger btn-sm" onclick="clearAllHistory()">Clear History</button>
             </div>
@@ -113,11 +113,11 @@
         <div class="card-body">
             <div class="form-group">
                 <label class="form-label">Change Password</label>
-                <input class="form-input" type="password" placeholder="Current password" disabled style="max-width:360px;margin-bottom:8px;">
-                <input class="form-input" type="password" placeholder="New password" disabled style="max-width:360px;">
+                <input class="form-input" type="password" placeholder="Current password" disabled style="max-width:340px;margin-bottom:7px;">
+                <input class="form-input" type="password" placeholder="New password" disabled style="max-width:340px;">
                 <div class="form-hint">Password changes are disabled in the demo environment.</div>
             </div>
-            <div style="margin-top:16px;">
+            <div style="margin-top:14px;">
                 <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
                     Sign Out

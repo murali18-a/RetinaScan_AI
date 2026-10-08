@@ -9,7 +9,7 @@
         <p>Browse and search past OCT analyses.</p>
     </div>
     <a href="{{ url_for('analysis') }}" class="btn btn-primary">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M12 5v14M5 12h14"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M12 5v14M5 12h14"/></svg>
         New Analysis
     </a>
 </div>
@@ -26,7 +26,7 @@
             <option value="Invalid">Invalid</option>
         </select>
         <div style="flex:1;"></div>
-        <span style="font-size:0.78rem;color:var(--gray-400);" id="record-count">{{ records|length }} records</span>
+        <span style="font-size:0.76rem;color:var(--gray-400);" id="record-count">{{ records|length }} records</span>
     </div>
 
     {% if records %}
@@ -45,7 +45,7 @@
             {% for r in records %}
             <tr data-prediction="{{ r.prediction or 'Invalid' }}" data-scanid="{{ r.scan_id }}">
                 <td class="mono">{{ r.scan_id }}</td>
-                <td style="font-size:0.8rem;color:var(--gray-500);">{{ r.timestamp[:16].replace('T', ' ') }}</td>
+                <td style="font-size:0.78rem;color:var(--gray-500);">{{ r.timestamp[:16].replace('T', ' ') }}</td>
                 <td>
                     {% if r.prediction %}
                     <span class="badge badge-{{ r.prediction|lower }}">{{ r.prediction }}</span>
@@ -55,7 +55,7 @@
                 </td>
                 <td>
                     {% if r.valid %}
-                    <span style="font-family:var(--font-mono);font-weight:600;">{{ r.confidence }}%</span>
+                    <span style="font-family:var(--font-mono);font-weight:600;font-size:0.8rem;">{{ r.confidence }}%</span>
                     {% else %}
                     <span style="color:var(--gray-400);">—</span>
                     {% endif %}
@@ -71,7 +71,13 @@
                 </td>
                 <td>
                     {% if r.valid and r.prediction %}
-                    <a href="{{ url_for('result', scan_id=r.scan_id) }}" class="btn btn-sm btn-secondary">View</a>
+                    <div style="display:flex;gap:5px;">
+                        <a href="{{ url_for('result', scan_id=r.scan_id) }}" class="btn btn-sm btn-secondary">View</a>
+                        <button class="btn btn-sm btn-secondary" onclick="downloadHistoryReport('{{ r.scan_id }}')" title="Download PDF Report">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                            PDF
+                        </button>
+                    </div>
                     {% endif %}
                 </td>
             </tr>
@@ -141,6 +147,37 @@ function paginate() {
 }
 
 function goToPage(p) { currentPage = p; paginate(); }
+
+function downloadHistoryReport(scanId) {
+    const btn = event.target.closest('button');
+    const origHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner" style="width:12px;height:12px;border-width:2px;"></div>';
+
+    fetch(`/api/report/${scanId}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Report generation failed');
+            return response.blob();
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `RetinaScan_Report_${scanId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+            btn.disabled = false;
+            btn.innerHTML = origHTML;
+            showToast('Report downloaded', 'success');
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = origHTML;
+            showToast('Unable to generate report', 'error');
+        });
+}
 
 document.addEventListener('DOMContentLoaded', () => { if (document.getElementById('history-table')) paginate(); });
 </script>

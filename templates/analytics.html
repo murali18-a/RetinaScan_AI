@@ -9,7 +9,7 @@
 </div>
 
 <!-- Section A: Application Analytics -->
-<div style="font-size:0.75rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px;">Application Usage</div>
+<div class="section-label">Application Usage</div>
 
 <div class="kpi-grid mb-24">
     <div class="kpi-card">
@@ -36,10 +36,10 @@
 
 <div class="grid-2 mb-24">
     <div class="card">
-        <div class="card-header"><span class="card-title">Class Distribution</span><span class="badge badge-success" style="font-size:0.68rem;">Usage Data</span></div>
+        <div class="card-header"><span class="card-title">Class Distribution</span><span class="badge badge-success" style="font-size:0.65rem;">Usage Data</span></div>
         <div class="card-body">
             {% if stats.completed > 0 %}
-            <div class="chart-container" style="height:260px;"><canvas id="distChart"></canvas></div>
+            <div class="chart-container" style="height:250px;"><canvas id="distChart"></canvas></div>
             {% else %}
             <div class="empty-state"><h3>No data</h3><p>Complete analyses to see distribution.</p></div>
             {% endif %}
@@ -49,7 +49,7 @@
         <div class="card-header"><span class="card-title">Per-Class Breakdown</span></div>
         <div class="card-body">
             {% if stats.completed > 0 %}
-            <div class="chart-container" style="height:260px;"><canvas id="barChart"></canvas></div>
+            <div class="chart-container" style="height:250px;"><canvas id="barChart"></canvas></div>
             {% else %}
             <div class="empty-state"><h3>No data</h3><p>Run some analyses first.</p></div>
             {% endif %}
@@ -58,7 +58,7 @@
 </div>
 
 <!-- Section B: Model Performance (Research Metrics) -->
-<div style="font-size:0.75rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px;">Model Evaluation <span class="badge badge-warning" style="font-size:0.62rem;margin-left:6px;">Research Metrics</span></div>
+<div class="section-label">Model Evaluation <span class="badge badge-warning" style="font-size:0.6rem;margin-left:6px;">Research Metrics</span></div>
 
 <div class="alert alert-info mb-16">
     <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
@@ -92,13 +92,13 @@
     <div class="card">
         <div class="card-header"><span class="card-title">Per-Class F1 Scores</span></div>
         <div class="card-body">
-            <div class="chart-container" style="height:260px;"><canvas id="f1Chart"></canvas></div>
+            <div class="chart-container" style="height:250px;"><canvas id="f1Chart"></canvas></div>
         </div>
     </div>
     <div class="card">
         <div class="card-header"><span class="card-title">Confusion Matrix</span></div>
         <div class="card-body" style="text-align:center;">
-            <img src="{{ url_for('serve_project_asset', filename='confusion_matrix.png') }}" alt="Confusion Matrix" style="max-width:100%;border-radius:var(--radius-md);">
+            <img src="{{ url_for('serve_project_asset', filename='confusion_matrix.png') }}" alt="Confusion Matrix" style="max-width:100%;border-radius:var(--radius-sm);">
         </div>
     </div>
 </div>
@@ -107,13 +107,13 @@
     <div class="card">
         <div class="card-header"><span class="card-title">Training Loss Curve</span></div>
         <div class="card-body">
-            <div class="chart-container" style="height:240px;"><canvas id="lossChart"></canvas></div>
+            <div class="chart-container" style="height:230px;"><canvas id="lossChart"></canvas></div>
         </div>
     </div>
     <div class="card">
         <div class="card-header"><span class="card-title">Training Accuracy Curve</span></div>
         <div class="card-body">
-            <div class="chart-container" style="height:240px;"><canvas id="accChart"></canvas></div>
+            <div class="chart-container" style="height:230px;"><canvas id="accChart"></canvas></div>
         </div>
     </div>
 </div>
@@ -127,23 +127,24 @@
 <script>
 const dist = {{ stats.class_distribution | tojson }};
 const th = {{ training_history | tojson }};
-const chartFont = { family: 'Inter', size: 12 };
+const chartFont = { family: 'Inter', size: 11 };
+const chartColors = ['#D97706', '#DC2626', '#4F46E5', '#16A34A'];
 
 {% if stats.completed > 0 %}
 new Chart(document.getElementById('distChart'), {
     type: 'doughnut',
     data: {
         labels: ['CNV','DME','DRUSEN','NORMAL'],
-        datasets: [{ data: [dist.CNV||0, dist.DME||0, dist.DRUSEN||0, dist.NORMAL||0], backgroundColor: ['#F59E0B','#EF4444','#6366F1','#22C55E'], borderWidth: 2, borderColor: '#fff' }]
+        datasets: [{ data: [dist.CNV||0, dist.DME||0, dist.DRUSEN||0, dist.NORMAL||0], backgroundColor: chartColors, borderWidth: 2, borderColor: '#fff' }]
     },
-    options: { responsive: true, maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { padding: 14, usePointStyle: true, font: chartFont } } } }
+    options: { responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: { legend: { position: 'bottom', labels: { padding: 12, usePointStyle: true, font: chartFont } } } }
 });
 
 new Chart(document.getElementById('barChart'), {
     type: 'bar',
     data: {
         labels: ['CNV','DME','DRUSEN','NORMAL'],
-        datasets: [{ label: 'Count', data: [dist.CNV||0, dist.DME||0, dist.DRUSEN||0, dist.NORMAL||0], backgroundColor: ['#F59E0B','#EF4444','#6366F1','#22C55E'], borderRadius: 4 }]
+        datasets: [{ label: 'Count', data: [dist.CNV||0, dist.DME||0, dist.DRUSEN||0, dist.NORMAL||0], backgroundColor: chartColors, borderRadius: 3 }]
     },
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { font: chartFont } }, x: { ticks: { font: chartFont } } } }
 });
@@ -154,7 +155,7 @@ new Chart(document.getElementById('f1Chart'), {
     type: 'bar',
     data: {
         labels: ['CNV','DME','DRUSEN','NORMAL'],
-        datasets: [{ label: 'F1 Score', data: [0.9979, 1.0000, 0.9979, 1.0000], backgroundColor: ['#F59E0B','#EF4444','#6366F1','#22C55E'], borderRadius: 4 }]
+        datasets: [{ label: 'F1 Score', data: [0.9979, 1.0000, 0.9979, 1.0000], backgroundColor: chartColors, borderRadius: 3 }]
     },
     options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { min: 0.99, max: 1.001, ticks: { font: chartFont } }, y: { ticks: { font: chartFont } } } }
 });
@@ -167,11 +168,11 @@ if (th.train_loss) {
         data: {
             labels: epochs,
             datasets: [
-                { label: 'Train Loss', data: th.train_loss, borderColor: '#0D9488', tension: 0.3, pointRadius: 3, borderWidth: 2 },
-                { label: 'Val Loss', data: th.val_loss, borderColor: '#6366F1', tension: 0.3, pointRadius: 3, borderWidth: 2, borderDash: [4,4] },
+                { label: 'Train Loss', data: th.train_loss, borderColor: '#1B3A5C', tension: 0.3, pointRadius: 3, borderWidth: 2 },
+                { label: 'Val Loss', data: th.val_loss, borderColor: '#4F46E5', tension: 0.3, pointRadius: 3, borderWidth: 2, borderDash: [4,4] },
             ]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { font: chartFont, usePointStyle: true, padding: 14 } } }, scales: { y: { ticks: { font: chartFont } }, x: { ticks: { font: chartFont, maxRotation: 0 } } } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { font: chartFont, usePointStyle: true, padding: 12 } } }, scales: { y: { ticks: { font: chartFont } }, x: { ticks: { font: chartFont, maxRotation: 0 } } } }
     });
 
     new Chart(document.getElementById('accChart'), {
@@ -179,11 +180,11 @@ if (th.train_loss) {
         data: {
             labels: epochs,
             datasets: [
-                { label: 'Train Acc', data: th.train_accuracy, borderColor: '#0D9488', tension: 0.3, pointRadius: 3, borderWidth: 2 },
-                { label: 'Val Acc', data: th.val_accuracy, borderColor: '#6366F1', tension: 0.3, pointRadius: 3, borderWidth: 2, borderDash: [4,4] },
+                { label: 'Train Acc', data: th.train_accuracy, borderColor: '#1B3A5C', tension: 0.3, pointRadius: 3, borderWidth: 2 },
+                { label: 'Val Acc', data: th.val_accuracy, borderColor: '#4F46E5', tension: 0.3, pointRadius: 3, borderWidth: 2, borderDash: [4,4] },
             ]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { font: chartFont, usePointStyle: true, padding: 14 } } }, scales: { y: { ticks: { font: chartFont } }, x: { ticks: { font: chartFont, maxRotation: 0 } } } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { font: chartFont, usePointStyle: true, padding: 12 } } }, scales: { y: { ticks: { font: chartFont } }, x: { ticks: { font: chartFont, maxRotation: 0 } } } }
     });
 }
 </script>

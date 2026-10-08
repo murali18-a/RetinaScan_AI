@@ -152,16 +152,13 @@ def validate_oct_input(image_array, softmax_probs=None):
     if is_hard_reject:
         return False, reasons, True
 
-    # Check 3: Laplacian variance
+    # Check 3: Edge orientation
+    # (Laplacian variance check removed — OCT speckle noise from
+    # interferometry naturally produces very high Laplacian variance,
+    # e.g., DME=4044, CNV=16573, which would be wrongly rejected.
+    # Non-OCT detection is handled by the OOD structural analysis.)
     gray = cv2.cvtColor(image_array, cv2.COLOR_RGB2GRAY)
     gray_resized = cv2.resize(gray, (224, 224))
-    lap_var = float(cv2.Laplacian(gray_resized, cv2.CV_64F).var())
-
-    if lap_var > MAX_LAPLACIAN_VAR:
-        reasons.append(f"Unusually sharp edges (Laplacian variance = {lap_var:.0f})")
-        is_hard_reject = True
-
-    # Check 4: Edge orientation
     sobel_x = cv2.Sobel(gray_resized, cv2.CV_64F, 1, 0, ksize=3)
     sobel_y = cv2.Sobel(gray_resized, cv2.CV_64F, 0, 1, ksize=3)
     total_energy = float(np.sum(sobel_y**2)) + float(np.sum(sobel_x**2)) + 1e-10
@@ -173,6 +170,7 @@ def validate_oct_input(image_array, softmax_probs=None):
 
     if is_hard_reject:
         return False, reasons, True
+
 
     # Check 5: Confidence + entropy (soft warning)
     if softmax_probs is not None:
@@ -193,14 +191,17 @@ _model = None
 _gradcam = None
 _preprocess = None
 _device = None
+_ood_validator = None
 
 
 def _load_model():
     """Load model once (singleton pattern)."""
-    global _model, _gradcam, _preprocess, _device
+    global _model, _gradcam, _preprocess, _device, _ood_validator
 
     if _model is not None:
         return
+
+    from backend.ood_detector import OCTDomainValidator
 
     print("\n=======================================================")
     print("       RETINASCAN AI - INITIALIZING")
@@ -239,6 +240,12 @@ def _load_model():
         transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD),
     ])
 
+    # Initialize OOD (out-of-distribution) domain validator
+    print("Initializing OOD domain validator...")
+    _ood_validator = OCTDomainValidator(_model, _preprocess, _device)
+    _ood_validator.initialize_reference(EXAMPLE_IMAGES_DIR)
+    print("[OK] OOD validator initialized")
+
     print("[OK] Model loaded (ConvNeXt-Tiny, 28.5M params, 99.90% test accuracy)")
     print("=======================================================\n")
 
@@ -246,6 +253,12 @@ def _load_model():
 def get_model():
     _load_model()
     return _model, _gradcam, _preprocess, _device
+
+
+def get_ood_validator():
+    """Return the OOD domain validator (initializes model if needed)."""
+    _load_model()
+    return _ood_validator
 
 
 # ================================================================
@@ -266,7 +279,7 @@ def numpy_to_base64(img_array):
 # ================================================================
 def analyze_image(image_array):
     """
-    Full analysis pipeline: validate → classify → Grad-CAM → return results dict.
+    Full analysis pipeline: validate → OOD check → classify → Grad-CAM → return results dict.
 
     Args:
         image_array: numpy array (H, W, C) in RGB format
@@ -275,11 +288,12 @@ def analyze_image(image_array):
         dict with all analysis results
     """
     model, gradcam_fn, preprocess_fn, device = get_model()
+    ood_validator = get_ood_validator()
 
     scan_id = f"RS-{uuid.uuid4().hex[:8].upper()}"
     timestamp = datetime.now().isoformat()
 
-    # Step 1: Hard validation
+    # Step 1: Hard validation (color/saturation checks)
     is_valid, reasons, is_hard = validate_oct_input(image_array)
     if is_hard:
         return {
@@ -294,6 +308,11 @@ def analyze_image(image_array):
             "original_b64": numpy_to_base64(image_array),
             "heatmap_b64": None,
             "overlay_b64": None,
+            "input_validation": {
+                "is_valid_oct": False,
+                "status": "rejected",
+                "reason": "; ".join(reasons),
+            },
         }
 
     # Step 2: Preprocessing
@@ -302,15 +321,43 @@ def analyze_image(image_array):
     display_rgb = np.stack([display_img] * 3, axis=-1)
     input_tensor = preprocess_fn(pil_img).unsqueeze(0).to(device)
 
-    # Step 3: Prediction + Grad-CAM
+    # Step 3: OOD Domain Validation (feature-space + structural)
+    ood_result = ood_validator.validate(image_array, input_tensor)
+    if not ood_result['is_valid_oct']:
+        rejection_reasons = [ood_result['rejection_reason']] if ood_result['rejection_reason'] else [
+            "The uploaded image does not appear to be a retinal OCT B-scan."
+        ]
+        return {
+            "scan_id": scan_id,
+            "timestamp": timestamp,
+            "valid": False,
+            "hard_reject": True,
+            "rejection_reasons": rejection_reasons,
+            "prediction": None,
+            "confidence": 0.0,
+            "probabilities": {},
+            "original_b64": numpy_to_base64(image_array),
+            "heatmap_b64": None,
+            "overlay_b64": None,
+            "input_validation": {
+                "is_valid_oct": False,
+                "status": "rejected",
+                "reason": rejection_reasons[0],
+                "feature_similarity": ood_result['feature_similarity'],
+                "structural_score": ood_result['structural_score'],
+                "combined_score": ood_result['combined_score'],
+            },
+        }
+
+    # Step 4: Prediction + Grad-CAM (only for validated OCT images)
     heatmap, pred_idx, probs = gradcam_fn(input_tensor)
     pred_class = CLASSES[pred_idx]
     confidence = float(probs[pred_idx])
 
-    # Step 4: Soft validation
+    # Step 5: Soft validation
     is_valid_soft, soft_reasons, _ = validate_oct_input(image_array, softmax_probs=probs)
 
-    # Step 5: Grad-CAM heatmap suppression for NORMAL
+    # Step 6: Grad-CAM heatmap suppression for NORMAL
     if pred_class == "NORMAL":
         threshold = 0.6
         heatmap_suppressed = np.where(heatmap > threshold, heatmap * 0.15, heatmap * 0.05)
@@ -318,7 +365,7 @@ def analyze_image(image_array):
     else:
         heatmap_for_overlay = heatmap
 
-    # Step 6: Generate visualization images
+    # Step 7: Generate visualization images
     heatmap_resized = cv2.resize(heatmap_for_overlay, (display_img.shape[1], display_img.shape[0]))
     heatmap_color = cv2.applyColorMap(np.uint8(255 * heatmap_resized), cv2.COLORMAP_JET)
     heatmap_color = cv2.cvtColor(heatmap_color, cv2.COLOR_BGR2RGB)
@@ -358,6 +405,13 @@ def analyze_image(image_array):
         "original_b64": numpy_to_base64(display_rgb),
         "heatmap_b64": numpy_to_base64(heatmap_color),
         "overlay_b64": numpy_to_base64(overlay),
+        "input_validation": {
+            "is_valid_oct": True,
+            "status": "valid",
+            "feature_similarity": ood_result['feature_similarity'],
+            "structural_score": ood_result['structural_score'],
+            "combined_score": ood_result['combined_score'],
+        },
     }
 
 

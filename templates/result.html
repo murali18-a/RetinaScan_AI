@@ -8,23 +8,87 @@
         <h1>Analysis Report</h1>
         <p>Scan <span style="font-family:var(--font-mono);font-weight:600;">{{ record.scan_id }}</span> &middot; {{ record.timestamp[:16].replace('T', ' ') }}</p>
     </div>
-    <a href="{{ url_for('analysis') }}" class="btn btn-secondary">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M12 5v14M5 12h14"/><circle cx="12" cy="12" r="10"/></svg>
-        New Analysis
-    </a>
+    <div style="display:flex;gap:8px;">
+        {% if record.valid %}
+        <button class="btn btn-primary" id="download-report-btn" onclick="downloadReport('{{ record.scan_id }}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Download PDF
+        </button>
+        {% endif %}
+        <a href="{{ url_for('analysis') }}" class="btn btn-secondary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M12 5v14M5 12h14"/><circle cx="12" cy="12" r="10"/></svg>
+            New Analysis
+        </a>
+    </div>
 </div>
 
 {% if not record.valid %}
-<div class="alert alert-error">
-    <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
-    <div>
-        <strong>Invalid Input</strong>
-        <div style="margin-top:4px;font-size:0.82rem;">This image was rejected by the validation pipeline.</div>
+<!-- Unsupported Image Result -->
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">Validation Result</span>
+        <span class="badge badge-error">Unsupported Image</span>
+    </div>
+    <div class="card-body">
+        <div style="text-align:center;padding:20px 0 14px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:48px;height:48px;color:var(--red-500);margin-bottom:12px;">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M15 9l-6 6M9 9l6 6"/>
+            </svg>
+            <div style="font-size:1.2rem;font-weight:700;color:var(--gray-900);margin-bottom:4px;">Unsupported Image</div>
+            <div style="font-size:0.86rem;color:var(--gray-500);max-width:400px;margin:0 auto;">
+                The uploaded image does not appear to be a valid retinal OCT B-scan.
+                Please upload a retinal OCT B-scan image for analysis.
+            </div>
+        </div>
+
+        <div class="alert alert-error" style="margin-top:10px;">
+            <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            <div>
+                <strong>Validation Status: Rejected</strong>
+                <div style="margin-top:3px;font-size:0.8rem;">This image was rejected by the input validation pipeline.</div>
+            </div>
+        </div>
+
+        {% if record.input_validation %}
+        {% set iv = record.input_validation %}
+        {% if iv.get('feature_similarity') is not none %}
+        <div style="margin-top:12px;padding:10px 14px;background:var(--gray-50);border-radius:var(--radius-sm);border:1px solid var(--gray-100);">
+            <div style="font-size:0.68rem;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Validation Details</div>
+            <table class="spec-table">
+                <tr><td>Feature Similarity</td><td>{{ "%.1f"|format(iv.feature_similarity * 100) }}%</td></tr>
+                <tr><td>Structural Score</td><td>{{ "%.1f"|format(iv.structural_score * 100) }}%</td></tr>
+                <tr><td>Combined Score</td><td>{{ "%.1f"|format(iv.combined_score * 100) }}%</td></tr>
+                {% if iv.reason %}<tr><td>Reason</td><td>{{ iv.reason }}</td></tr>{% endif %}
+            </table>
+        </div>
+        {% endif %}
+        {% endif %}
+
+        <div style="text-align:center;margin-top:18px;">
+            <a href="{{ url_for('analysis') }}" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                Upload Another Image
+            </a>
+        </div>
     </div>
 </div>
 {% else %}
 
-<div class="grid-2" style="gap:24px;">
+<!-- Input Validation Status -->
+{% if record.input_validation %}
+<div style="margin-bottom:14px;padding:10px 18px;background:var(--green-50);border:1px solid var(--green-100);border-radius:var(--radius-sm);">
+    <div style="display:flex;align-items:center;gap:7px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;color:var(--green-600);"><path d="M20 6L9 17l-5-5"/></svg>
+        <span style="font-size:0.82rem;font-weight:600;color:var(--green-700);">Input Validation: Valid OCT Image</span>
+        {% if record.input_validation.get('combined_score') is not none %}
+        <span style="font-size:0.76rem;color:var(--green-600);margin-left:auto;">OCT Domain Score: {{ "%.1f"|format(record.input_validation.get('combined_score', 0) * 100) }}%</span>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<div class="grid-2" style="gap:22px;">
     <!-- LEFT — Images -->
     <div>
         {% if record.original_b64 %}
@@ -64,7 +128,7 @@
                     </div>
                     {% endif %}
                 </div>
-                <p style="font-size:0.78rem;color:var(--gray-400);margin-top:12px;">
+                <p style="font-size:0.72rem;color:var(--gray-400);margin-top:10px;line-height:1.5;">
                     The Grad-CAM visualization highlights regions that contributed most to the model's prediction.
                     Red/yellow indicates high attention; blue indicates low attention.
                 </p>
@@ -87,16 +151,16 @@
                 {% endif %}
             </div>
             <div class="card-body">
-                <div style="text-align:center;padding:12px 0 20px;">
-                    <span class="badge badge-{{ record.prediction|lower }}" style="font-size:1.1rem;padding:6px 20px;">{{ record.prediction }}</span>
-                    <div style="font-size:0.85rem;color:var(--gray-500);margin-top:8px;">{{ record.prediction_full }}</div>
-                    <div style="font-size:2rem;font-weight:700;color:var(--gray-900);margin-top:8px;">{{ record.confidence }}%</div>
-                    <div style="font-size:0.75rem;color:var(--gray-400);">Model confidence</div>
+                <div style="text-align:center;padding:10px 0 18px;">
+                    <span class="badge badge-{{ record.prediction|lower }}" style="font-size:1rem;padding:5px 18px;">{{ record.prediction }}</span>
+                    <div style="font-size:0.83rem;color:var(--gray-500);margin-top:6px;">{{ record.prediction_full }}</div>
+                    <div style="font-size:1.8rem;font-weight:700;color:var(--gray-900);margin-top:6px;letter-spacing:-0.02em;">{{ record.confidence }}%</div>
+                    <div style="font-size:0.72rem;color:var(--gray-400);">Model confidence</div>
                 </div>
 
                 <!-- Probability bars -->
                 {% for cls in ['CNV', 'DME', 'DRUSEN', 'NORMAL'] %}
-                <div class="confidence-bar-container" style="margin-bottom:10px;">
+                <div class="confidence-bar-container" style="margin-bottom:8px;">
                     <div class="confidence-bar-label">
                         <span>{{ cls }}</span>
                         <span>{{ record.probabilities.get(cls, 0) }}%</span>
@@ -115,17 +179,17 @@
                 <span class="card-title">Clinical Information</span>
             </div>
             <div class="card-body">
-                <div style="margin-bottom:14px;">
-                    <div style="font-size:0.75rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px;">Clinical Description</div>
-                    <p style="font-size:0.85rem;color:var(--gray-700);line-height:1.6;">{{ record.clinical_description }}</p>
+                <div style="margin-bottom:12px;">
+                    <div style="font-size:0.7rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;">Clinical Description</div>
+                    <p style="font-size:0.83rem;color:var(--gray-700);line-height:1.6;">{{ record.clinical_description }}</p>
                 </div>
-                <div style="margin-bottom:14px;">
-                    <div style="font-size:0.75rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px;">Attention Region</div>
-                    <p style="font-size:0.85rem;color:var(--gray-700);line-height:1.6;">{{ record.attention_region }}</p>
+                <div style="margin-bottom:12px;">
+                    <div style="font-size:0.7rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;">Attention Region</div>
+                    <p style="font-size:0.83rem;color:var(--gray-700);line-height:1.6;">{{ record.attention_region }}</p>
                 </div>
                 <div>
-                    <div style="font-size:0.75rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px;">Model Interpretation</div>
-                    <p style="font-size:0.85rem;color:var(--gray-700);line-height:1.6;">{{ record.interpretation }}</p>
+                    <div style="font-size:0.7rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;">Model Interpretation</div>
+                    <p style="font-size:0.83rem;color:var(--gray-700);line-height:1.6;">{{ record.interpretation }}</p>
                 </div>
             </div>
         </div>
@@ -138,7 +202,10 @@
                     <tr><td>Scan ID</td><td class="mono">{{ record.scan_id }}</td></tr>
                     <tr><td>Timestamp</td><td>{{ record.timestamp[:19].replace('T', ' ') }}</td></tr>
                     <tr><td>Model</td><td>ConvNeXt-Tiny (28.5M parameters)</td></tr>
-                    <tr><td>Grad-CAM Layer</td><td class="mono">model.features[-1]</td></tr>
+                    <tr><td>Grad-CAM Layer</td><td style="font-family:var(--font-mono);font-size:0.8rem;">model.features[-1]</td></tr>
+                    {% if record.input_validation and record.input_validation.get('combined_score') is not none %}
+                    <tr><td>OCT Domain Score</td><td>{{ "%.1f"|format(record.input_validation.get('combined_score', 0) * 100) }}%</td></tr>
+                    {% endif %}
                 </table>
             </div>
         </div>
@@ -149,4 +216,44 @@
     This system is intended for research and decision-support purposes and is not a substitute for professional clinical diagnosis. The predictions shown are model outputs, not clinical diagnoses.
 </div>
 {% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+function downloadReport(scanId) {
+    const btn = document.getElementById('download-report-btn');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner" style="width:13px;height:13px;border-width:2px;"></div> Generating...';
+    }
+
+    fetch(`/api/report/${scanId}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Report generation failed');
+            return response.blob();
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `RetinaScan_Report_${scanId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Download PDF';
+            }
+            showToast('Report downloaded successfully', 'success');
+        })
+        .catch(err => {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = 'Download PDF';
+            }
+            showToast('Unable to generate report. Please try again.', 'error');
+        });
+}
+</script>
 {% endblock %}
