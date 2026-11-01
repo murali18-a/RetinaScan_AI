@@ -212,48 +212,357 @@
     </div>
 </div>
 
+<!-- ============================================================ -->
+<!-- FEATURE-BASED SEVERITY ASSESSMENT                            -->
+<!-- ============================================================ -->
+{% if features_def %}
+<div class="card mt-24" id="severity-section">
+    <div class="card-header">
+        <span class="card-title">Feature Assessment — {{ features_def.label }}</span>
+        <span class="badge badge-warning" id="severity-badge">Awaiting Review</span>
+    </div>
+    <div class="card-body">
+        <p style="font-size:0.82rem;color:var(--gray-600);line-height:1.6;margin-bottom:14px;">
+            {{ features_def.description }}
+        </p>
+
+        {% if record.prediction != 'NORMAL' %}
+        <div class="alert alert-info" style="margin-bottom:14px;">
+            <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <div style="font-size:0.78rem;">
+                <strong>Clinician Feature Assessment:</strong> This is a manual review tool — not automated biomarker detection.
+                Review the OCT scan and check any features you observe. The severity category is a research prototype based on feature count only.
+            </div>
+        </div>
+        {% endif %}
+
+        <div id="feature-checklist">
+            {% for feature in features_def.features %}
+            <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;margin-bottom:6px;background:var(--gray-50);border:1px solid var(--gray-100);border-radius:var(--radius-sm);cursor:{% if record.prediction == 'NORMAL' %}default{% else %}pointer{% endif %};">
+                <input type="checkbox" class="feature-checkbox"
+                       data-feature-id="{{ feature.id }}"
+                       {% if record.prediction == 'NORMAL' %}checked disabled{% endif %}
+                       style="margin-top:2px;accent-color:var(--teal-600);">
+                <div>
+                    <div style="font-size:0.84rem;font-weight:600;color:var(--gray-800);">{{ feature.name }}</div>
+                    <div style="font-size:0.76rem;color:var(--gray-500);margin-top:2px;line-height:1.5;">{{ feature.description }}</div>
+                </div>
+            </label>
+            {% endfor %}
+        </div>
+
+        {% if record.prediction != 'NORMAL' %}
+        <!-- Severity Result -->
+        <div id="severity-result" style="margin-top:14px;padding:14px 16px;background:var(--gray-50);border:1px solid var(--gray-100);border-radius:var(--radius-sm);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                <div style="font-size:0.7rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;">Severity Category</div>
+                <span id="severity-level-badge" class="badge badge-warning" style="font-size:0.7rem;">Unable to assess</span>
+            </div>
+            <div id="severity-label" style="font-size:0.9rem;font-weight:600;color:var(--gray-800);">Unable to assess</div>
+            <div id="severity-description" style="font-size:0.76rem;color:var(--gray-500);margin-top:3px;line-height:1.5;">
+                No features were reviewed, or the image quality does not permit reliable feature identification.
+            </div>
+            <div id="severity-count" style="font-size:0.72rem;color:var(--gray-400);margin-top:6px;">0 of {{ features_def.features|length }} features checked</div>
+        </div>
+        {% else %}
+        <div style="margin-top:14px;padding:14px 16px;background:var(--green-50);border:1px solid var(--green-100);border-radius:var(--radius-sm);">
+            <div style="font-size:0.7rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Structural Integrity</div>
+            <div style="font-size:0.86rem;font-weight:600;color:var(--green-700);">Normal — no severity assessment applicable</div>
+            <div style="font-size:0.76rem;color:var(--gray-500);margin-top:3px;line-height:1.5;">
+                Severity assessment applies to disease classes. For a Normal scan, the structural integrity indicators above describe the expected healthy retinal appearance.
+            </div>
+        </div>
+        {% endif %}
+
+        <p style="font-size:0.68rem;color:var(--gray-400);margin-top:10px;line-height:1.5;font-style:italic;">
+            These severity categories are research prototypes based on feature count and are NOT clinically validated severity grades.
+            This tool does not automatically detect OCT biomarkers.
+        </p>
+    </div>
+</div>
+{% endif %}
+
+<!-- ============================================================ -->
+<!-- PATIENT SYMPTOM QUESTIONNAIRE                                -->
+<!-- ============================================================ -->
+{% if questions %}
+<div class="card mt-24" id="questionnaire-section">
+    <div class="card-header">
+        <span class="card-title">Patient Symptom Questionnaire</span>
+        <span class="badge badge-warning" id="questionnaire-badge">Not Completed</span>
+    </div>
+    <div class="card-body">
+        <p style="font-size:0.82rem;color:var(--gray-600);line-height:1.6;margin-bottom:14px;">
+            Record the patient's reported visual symptoms. This questionnaire does not diagnose any condition
+            and does not override the OCT model prediction. It provides a consistency check between
+            patient-reported symptoms and the AI-predicted category.
+        </p>
+
+        <div id="symptom-questions">
+            {% for q in questions %}
+            <div style="margin-bottom:12px;padding:10px 14px;background:var(--gray-50);border:1px solid var(--gray-100);border-radius:var(--radius-sm);">
+                <div style="font-size:0.82rem;font-weight:600;color:var(--gray-800);margin-bottom:6px;">{{ loop.index }}. {{ q.question }}</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                    {% for option in q.options %}
+                    <label style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:white;border:1px solid var(--gray-200);border-radius:var(--radius-sm);cursor:pointer;font-size:0.78rem;color:var(--gray-700);">
+                        <input type="radio" name="symptom_{{ q.id }}" value="{{ option }}" data-question-id="{{ q.id }}" class="symptom-radio" style="accent-color:var(--teal-600);">
+                        {{ option }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div style="margin-top:14px;display:flex;gap:8px;">
+            <button class="btn btn-primary" id="submit-questionnaire-btn" onclick="submitQuestionnaire()">
+                Submit Questionnaire
+            </button>
+            <button class="btn btn-secondary" onclick="resetQuestionnaire()">
+                Reset
+            </button>
+        </div>
+
+        <!-- Consistency Result (hidden until submitted) -->
+        <div id="consistency-result" style="display:none;margin-top:16px;">
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- ============================================================ -->
+<!-- COMBINED CLINICAL SUMMARY                                    -->
+<!-- ============================================================ -->
+<div class="card mt-24" id="clinical-summary-section" style="display:none;">
+    <div class="card-header">
+        <span class="card-title">Clinical Summary Report</span>
+    </div>
+    <div class="card-body" id="clinical-summary-body">
+    </div>
+</div>
+
 <div class="disclaimer mt-24">
-    This system is intended for research and decision-support purposes and is not a substitute for professional clinical diagnosis. The predictions shown are model outputs, not clinical diagnoses.
+    <strong>Research Prototype Disclaimer:</strong>
+    This system is intended for research and decision-support purposes and is not a substitute for professional clinical diagnosis.
+    The predictions shown are model outputs, not clinical diagnoses.
+    Severity categories are research prototypes based on feature counts and are not clinically validated.
+    The symptom questionnaire does not independently diagnose any condition.
+    Sudden vision loss or sudden significant vision changes should prompt urgent professional medical assessment.
 </div>
 {% endif %}
 {% endblock %}
 
 {% block scripts %}
 <script>
-function downloadReport(scanId) {
-    const btn = document.getElementById('download-report-btn');
-    if (btn) {
-        btn.disabled = true;
-        btn.innerHTML = '<div class="spinner" style="width:13px;height:13px;border-width:2px;"></div> Generating...';
+const SCAN_ID = '{{ record.scan_id }}';
+const PREDICTION = '{{ record.prediction }}';
+const CONFIDENCE = {{ record.confidence if record.valid else 0 }};
+
+// ── Severity Assessment ──
+{% if record.valid and record.prediction != 'NORMAL' %}
+const featureCheckboxes = document.querySelectorAll('.feature-checkbox');
+featureCheckboxes.forEach(cb => {
+    cb.addEventListener('change', updateSeverity);
+});
+
+function updateSeverity() {
+    const checked = [];
+    featureCheckboxes.forEach(cb => {
+        if (cb.checked) checked.push(cb.dataset.featureId);
+    });
+    const total = featureCheckboxes.length;
+    const count = checked.length;
+
+    let level, label, desc, css;
+    if (count === 0) {
+        level = 'unable_to_assess'; label = 'Unable to assess';
+        desc = 'No features were reviewed, or the image quality does not permit reliable feature identification.';
+        css = 'badge-warning';
+    } else if (count <= 2) {
+        level = 'low'; label = 'Low feature burden';
+        desc = 'A small number of disease-associated features were identified. This is a prototype research categorisation.';
+        css = 'badge-success';
+    } else if (count <= 3) {
+        level = 'moderate'; label = 'Moderate feature burden';
+        desc = 'Several disease-associated features were identified. This is a prototype research categorisation.';
+        css = 'badge-warning';
+    } else {
+        level = 'high'; label = 'High feature burden';
+        desc = 'Most or all disease-associated features were identified. This is a prototype research categorisation.';
+        css = 'badge-error';
     }
 
-    fetch(`/api/report/${scanId}`)
-        .then(response => {
-            if (!response.ok) throw new Error('Report generation failed');
-            return response.blob();
-        })
-        .then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `RetinaScan_Report_${scanId}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-            if (btn) {
-                btn.disabled = false;
-                btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Download PDF';
-            }
-            showToast('Report downloaded successfully', 'success');
-        })
-        .catch(err => {
-            if (btn) {
-                btn.disabled = false;
-                btn.innerHTML = 'Download PDF';
-            }
-            showToast('Unable to generate report. Please try again.', 'error');
+    document.getElementById('severity-level-badge').className = 'badge ' + css;
+    document.getElementById('severity-level-badge').textContent = label;
+    document.getElementById('severity-badge').className = 'badge ' + css;
+    document.getElementById('severity-badge').textContent = label;
+    document.getElementById('severity-label').textContent = label;
+    document.getElementById('severity-description').textContent = desc;
+    document.getElementById('severity-count').textContent = count + ' of ' + total + ' features checked';
+
+    // Save to backend
+    fetch('/api/severity/assess', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            scan_id: SCAN_ID,
+            prediction: PREDICTION,
+            checked_features: checked,
+        }),
+    }).catch(() => {});
+
+    updateClinicalSummary();
+}
+{% endif %}
+
+// ── Questionnaire ──
+let questionnaireResult = null;
+
+function submitQuestionnaire() {
+    const answers = {};
+    document.querySelectorAll('.symptom-radio:checked').forEach(r => {
+        answers[r.dataset.questionId] = r.value;
+    });
+
+    const btn = document.getElementById('submit-questionnaire-btn');
+    btn.disabled = true;
+    btn.textContent = 'Evaluating...';
+
+    fetch('/api/questionnaire/evaluate', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            scan_id: SCAN_ID,
+            prediction: PREDICTION,
+            answers: answers,
+        }),
+    })
+    .then(r => r.json())
+    .then(data => {
+        questionnaireResult = data;
+        displayConsistencyResult(data);
+        btn.disabled = false;
+        btn.textContent = 'Update Questionnaire';
+        document.getElementById('questionnaire-badge').textContent = 'Completed';
+        document.getElementById('questionnaire-badge').className = 'badge badge-success';
+        updateClinicalSummary();
+    })
+    .catch(err => {
+        btn.disabled = false;
+        btn.textContent = 'Submit Questionnaire';
+        showToast('Failed to evaluate questionnaire', 'error');
+    });
+}
+
+function displayConsistencyResult(data) {
+    const div = document.getElementById('consistency-result');
+    const alertClass = data.urgent_referral ? 'alert-error' : (data.consistent ? 'alert-success' : 'alert-warning');
+    const icon = data.consistent ?
+        '<svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>' :
+        '<svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>';
+
+    let html = '<div class="alert ' + alertClass + '">' + icon + '<div>';
+    html += '<strong>Consistency Assessment</strong>';
+    html += '<div style="margin-top:4px;font-size:0.8rem;">' + data.summary + '</div>';
+    html += '</div></div>';
+
+    if (data.urgent_referral) {
+        html += '<div class="alert alert-error" style="margin-top:8px;">';
+        html += '<svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>';
+        html += '<div><strong>Urgent Referral Recommended</strong>';
+        html += '<div style="margin-top:3px;font-size:0.8rem;">Patient reports sudden significant vision changes. Immediate professional medical assessment is strongly recommended regardless of OCT classification.</div>';
+        html += '</div></div>';
+    }
+
+    if (data.reported_symptoms && data.reported_symptoms.length > 0) {
+        html += '<div style="margin-top:10px;padding:10px 14px;background:var(--gray-50);border:1px solid var(--gray-100);border-radius:var(--radius-sm);">';
+        html += '<div style="font-size:0.7rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Reported Symptoms (' + data.symptom_count + ')</div>';
+        data.reported_symptoms.forEach(function(s) {
+            html += '<div style="font-size:0.78rem;color:var(--gray-700);padding:2px 0;">&#8226; ' + s.answer + ' — ' + s.question + '</div>';
         });
+        html += '</div>';
+    }
+
+    if (data.details && data.details.length > 0) {
+        html += '<div style="margin-top:8px;font-size:0.76rem;color:var(--gray-500);line-height:1.5;">';
+        data.details.forEach(function(d) { html += '<div style="margin-top:3px;">' + d + '</div>'; });
+        html += '</div>';
+    }
+
+    div.innerHTML = html;
+    div.style.display = 'block';
+}
+
+function resetQuestionnaire() {
+    document.querySelectorAll('.symptom-radio').forEach(r => { r.checked = false; });
+    document.getElementById('consistency-result').style.display = 'none';
+    document.getElementById('consistency-result').innerHTML = '';
+    document.getElementById('questionnaire-badge').textContent = 'Not Completed';
+    document.getElementById('questionnaire-badge').className = 'badge badge-warning';
+    document.getElementById('submit-questionnaire-btn').textContent = 'Submit Questionnaire';
+    questionnaireResult = null;
+    updateClinicalSummary();
+}
+
+// ── Combined Clinical Summary ──
+function updateClinicalSummary() {
+    const section = document.getElementById('clinical-summary-section');
+    const body = document.getElementById('clinical-summary-body');
+
+    // Only show if we have at least severity or questionnaire data
+    const hasSeverity = document.querySelector('.feature-checkbox:checked') !== null;
+    const hasQuestionnaire = questionnaireResult !== null;
+
+    if (!hasSeverity && !hasQuestionnaire) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = 'block';
+    let html = '';
+
+    // 1. AI Prediction
+    html += '<div style="margin-bottom:14px;">';
+    html += '<div style="font-size:0.7rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">AI-Predicted OCT Category</div>';
+    html += '<div style="font-size:1rem;font-weight:700;color:var(--gray-900);">' + PREDICTION + ' <span style="font-size:0.82rem;font-weight:400;color:var(--gray-500);">(' + CONFIDENCE + '% confidence)</span></div>';
+    html += '</div>';
+
+    // 2. Severity Assessment
+    if (hasSeverity) {
+        const severityLabel = document.getElementById('severity-label');
+        html += '<div style="margin-bottom:14px;">';
+        html += '<div style="font-size:0.7rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Feature Assessment</div>';
+        html += '<div style="font-size:0.86rem;font-weight:600;color:var(--gray-800);">' + (severityLabel ? severityLabel.textContent : 'Not assessed') + '</div>';
+        html += '<div style="font-size:0.76rem;color:var(--gray-500);margin-top:2px;">' + (document.getElementById('severity-count') ? document.getElementById('severity-count').textContent : '') + '</div>';
+        html += '</div>';
+    }
+
+    // 3. Questionnaire
+    if (hasQuestionnaire) {
+        html += '<div style="margin-bottom:14px;">';
+        html += '<div style="font-size:0.7rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Patient-Reported Symptoms</div>';
+        html += '<div style="font-size:0.86rem;color:var(--gray-700);">' + questionnaireResult.symptom_count + ' symptom(s) reported</div>';
+        html += '</div>';
+
+        // Consistency
+        html += '<div style="margin-bottom:14px;">';
+        html += '<div style="font-size:0.7rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Consistency Summary</div>';
+        const consistentText = questionnaireResult.consistent ? 'Generally consistent' : 'Inconsistencies noted — professional review recommended';
+        const consistentColor = questionnaireResult.consistent ? 'var(--green-700)' : 'var(--amber-600)';
+        html += '<div style="font-size:0.86rem;font-weight:600;color:' + consistentColor + ';">' + consistentText + '</div>';
+        html += '<div style="font-size:0.78rem;color:var(--gray-600);margin-top:3px;line-height:1.5;">' + questionnaireResult.summary + '</div>';
+        html += '</div>';
+    }
+
+    // Urgent referral
+    if (hasQuestionnaire && questionnaireResult.urgent_referral) {
+        html += '<div class="alert alert-error" style="margin-top:8px;">';
+        html += '<svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>';
+        html += '<div><strong>Urgent: Sudden significant vision changes reported.</strong> Immediate professional assessment recommended.</div>';
+        html += '</div>';
+    }
+
+    body.innerHTML = html;
 }
 </script>
 {% endblock %}

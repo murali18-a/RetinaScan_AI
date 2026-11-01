@@ -73,7 +73,7 @@
                     {% if r.valid and r.prediction %}
                     <div style="display:flex;gap:5px;">
                         <a href="{{ url_for('result', scan_id=r.scan_id) }}" class="btn btn-sm btn-secondary">View</a>
-                        <button class="btn btn-sm btn-secondary" onclick="downloadHistoryReport('{{ r.scan_id }}')" title="Download PDF Report">
+                        <button class="btn btn-sm btn-secondary" onclick="downloadReport('{{ r.scan_id }}')" title="Download PDF Report">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                             PDF
                         </button>
@@ -148,7 +148,7 @@ function paginate() {
 
 function goToPage(p) { currentPage = p; paginate(); }
 
-function downloadHistoryReport(scanId) {
+function downloadReport(scanId) {
     const btn = event.target.closest('button');
     const origHTML = btn.innerHTML;
     btn.disabled = true;

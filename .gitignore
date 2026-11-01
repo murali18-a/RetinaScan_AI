@@ -41,7 +41,18 @@ venv.bak/
 *.swo
 *~
 
+# Operating system files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
 # Temporary test & diagnostic scripts
 _*.py
 test_nonoct.jpg
 
+# Duplicate model checkpoint (keep only best_convnext_tiny_oct2017.pth)
+latest_checkpoint.pth
+
+# Runtime data (analysis history with base64 images)
+data/history.json

@@ -28,7 +28,10 @@ from backend.inference import analyze_image, get_example_images, CLASSES, DESCRI
 from backend.history import (
     load_history, save_analysis, get_analysis_by_id,
     delete_analysis, clear_history, get_statistics,
+    update_analysis,
 )
+from backend.severity import get_features_for_class, compute_severity
+from backend.questionnaire import get_questions, evaluate_consistency
 
 # ================================================================
 # FLASK APP
@@ -114,10 +117,15 @@ def result(scan_id):
     if not record:
         return redirect(url_for("history"))
     desc = DESCRIPTIONS.get(record.get("prediction", ""), {})
+    # Get feature definitions and questionnaire for this class
+    features_def = get_features_for_class(record.get("prediction", ""))
+    questions = get_questions()
     return render_template("result.html",
                            page="analysis",
                            record=record,
                            desc=desc,
+                           features_def=features_def,
+                           questions=questions,
                            user=session.get("user", DEMO_USER))
 
 
@@ -283,6 +291,68 @@ def serve_demo_image(filename):
 @app.route("/project-asset/<path:filename>")
 def serve_project_asset(filename):
     return send_from_directory(str(BASE_DIR), filename)
+
+
+
+# ================================================================
+# SEVERITY ASSESSMENT & QUESTIONNAIRE API
+# ================================================================
+@app.route("/api/severity/features/<prediction>")
+@login_required
+def api_severity_features(prediction):
+    """Return disease-specific feature definitions for a class."""
+    features = get_features_for_class(prediction.upper())
+    if not features:
+        return jsonify({"error": "Unknown prediction class"}), 404
+    return jsonify(features)
+
+
+@app.route("/api/severity/assess", methods=["POST"])
+@login_required
+def api_severity_assess():
+    """Compute severity from checked features and save to history."""
+    data = request.get_json()
+    scan_id = data.get("scan_id", "")
+    prediction = data.get("prediction", "")
+    checked_features = data.get("checked_features", [])
+
+    result = compute_severity(prediction, checked_features)
+    result["scan_id"] = scan_id
+
+    # Save to history record
+    update_analysis(scan_id, {
+        "severity_assessment": result,
+    })
+
+    return jsonify(result)
+
+
+@app.route("/api/questionnaire/questions")
+@login_required
+def api_questionnaire_questions():
+    """Return the symptom questionnaire questions."""
+    return jsonify(get_questions())
+
+
+@app.route("/api/questionnaire/evaluate", methods=["POST"])
+@login_required
+def api_questionnaire_evaluate():
+    """Evaluate symptom consistency and save to history."""
+    data = request.get_json()
+    scan_id = data.get("scan_id", "")
+    prediction = data.get("prediction", "")
+    answers = data.get("answers", {})
+
+    result = evaluate_consistency(prediction, answers)
+    result["scan_id"] = scan_id
+    result["answers"] = answers
+
+    # Save to history record
+    update_analysis(scan_id, {
+        "questionnaire": result,
+    })
+
+    return jsonify(result)
 
 
 # ================================================================

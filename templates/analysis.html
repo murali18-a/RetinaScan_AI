@@ -350,40 +350,6 @@ function displayResult(data) {
     showToast('Analysis complete — ' + data.prediction + ' (' + data.confidence + '%)', 'success');
 }
 
-function downloadReport(scanId) {
-    const btn = document.getElementById('download-report-btn');
-    if (btn) {
-        btn.disabled = true;
-        btn.innerHTML = '<div class="spinner" style="width:13px;height:13px;border-width:2px;"></div> Generating...';
-    }
-
-    fetch(`/api/report/${scanId}`)
-        .then(response => {
-            if (!response.ok) throw new Error('Report generation failed');
-            return response.blob();
-        })
-        .then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `RetinaScan_Report_${scanId}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-            if (btn) {
-                btn.disabled = false;
-                btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Download PDF';
-            }
-            showToast('Report downloaded successfully', 'success');
-        })
-        .catch(err => {
-            if (btn) {
-                btn.disabled = false;
-                btn.innerHTML = 'Download PDF';
-            }
-            showToast('Unable to generate report. Please try again.', 'error');
-        });
-}
+// downloadReport is defined in base.html
 </script>
 {% endblock %}

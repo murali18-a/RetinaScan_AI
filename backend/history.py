@@ -112,3 +112,26 @@ def get_statistics():
         "avg_confidence": avg_confidence,
         "class_distribution": class_counts,
     }
+
+
+def update_analysis(scan_id, updates):
+    """Update an existing analysis record with additional data.
+
+    Used to attach severity assessment and questionnaire results
+    to an existing analysis record after the initial prediction.
+
+    Args:
+        scan_id: str — the scan ID to update
+        updates: dict — key-value pairs to merge into the record
+    """
+    _ensure_data_dir()
+    history = load_history()
+    updated = False
+    for record in history:
+        if record.get("scan_id") == scan_id:
+            record.update(updates)
+            updated = True
+            break
+    if updated:
+        HISTORY_FILE.write_text(json.dumps(history, indent=2), encoding="utf-8")
+    return updated

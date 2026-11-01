@@ -521,6 +521,93 @@ def generate_report_pdf(record):
             styles['BodyText2']
         ))
 
+
+    # ── SEVERITY ASSESSMENT ──
+    severity = record.get('severity_assessment')
+    if severity and severity.get('severity_level') and severity['severity_level'] != 'unable_to_assess':
+        story.append(section_divider())
+        story.append(Paragraph("FEATURE-BASED SEVERITY ASSESSMENT", styles['SectionHeading']))
+        story.append(Paragraph(
+            "The following severity assessment is based on clinician-reviewed "
+            "OCT feature counts. These categories are research prototypes and "
+            "are NOT clinically validated severity grades.",
+            styles['SmallText']
+        ))
+
+        sev_data = [
+            ['Severity Category', severity.get('severity_label', 'N/A')],
+            ['Features Checked', f"{severity.get('checked_count', 0)} of {severity.get('total_features', 0)}"],
+        ]
+
+        checked_features = severity.get('checked_features', [])
+        if checked_features:
+            feature_names = ", ".join(f.get('name', '') for f in checked_features)
+            sev_data.append(['Observed Features', feature_names])
+
+        sev_table = Table(sev_data, colWidths=[45 * mm, 115 * mm])
+        sev_table.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('TEXTCOLOR', (0, 0), (0, -1), GRAY_600),
+            ('TEXTCOLOR', (1, 0), (1, -1), GRAY_800),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('LINEBELOW', (0, 0), (-1, -2), 0.3, GRAY_200),
+        ]))
+        story.append(sev_table)
+
+    # ── PATIENT SYMPTOM QUESTIONNAIRE ──
+    questionnaire = record.get('questionnaire')
+    if questionnaire:
+        story.append(section_divider())
+        story.append(Paragraph("PATIENT SYMPTOM QUESTIONNAIRE", styles['SectionHeading']))
+
+        symptom_count = questionnaire.get('symptom_count', 0)
+        consistent = questionnaire.get('consistent')
+        summary = questionnaire.get('summary', '')
+
+        q_data = [
+            ['Symptoms Reported', str(symptom_count)],
+            ['Consistency', 'Consistent' if consistent else 'Inconsistencies noted'],
+        ]
+
+        reported = questionnaire.get('reported_symptoms', [])
+        if reported:
+            symptom_list = ", ".join(
+                f"{s.get('answer', '')} ({s.get('question', '')[:40]})"
+                for s in reported
+            )
+            q_data.append(['Reported Symptoms', symptom_list])
+
+        q_table = Table(q_data, colWidths=[45 * mm, 115 * mm])
+        q_table.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('TEXTCOLOR', (0, 0), (0, -1), GRAY_600),
+            ('TEXTCOLOR', (1, 0), (1, -1), GRAY_800),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('LINEBELOW', (0, 0), (-1, -2), 0.3, GRAY_200),
+        ]))
+        story.append(q_table)
+
+        if summary:
+            story.append(Spacer(1, 4 * mm))
+            story.append(Paragraph(
+                f"<b>Consistency Summary:</b> {summary}",
+                styles['BodyText2']
+            ))
+
+        if questionnaire.get('urgent_referral'):
+            story.append(Spacer(1, 4 * mm))
+            story.append(Paragraph(
+                "<b>URGENT:</b> Patient reports sudden significant vision changes. "
+                "Immediate professional medical assessment is strongly recommended.",
+                styles['BodyText2']
+            ))
+
     # ── DISCLAIMER ──
     story.append(Spacer(1, 6 * mm))
     story.append(section_divider())

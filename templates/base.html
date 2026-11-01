@@ -116,6 +116,25 @@ function closeSidebar() {
     document.getElementById('sidebar').classList.remove('open');
     document.getElementById('sidebar-overlay').classList.remove('visible');
 }
+
+function downloadReport(scanId) {
+    const btn = event ? event.target.closest('button') : null;
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:4px;"></span> Generating...'; }
+    fetch('/api/report/' + scanId)
+        .then(r => { if (!r.ok) throw new Error('Report generation failed'); return r.blob(); })
+        .then(blob => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url;
+            a.download = 'RetinaScan_Report_' + scanId + '.pdf';
+            a.click(); URL.revokeObjectURL(url);
+            if (btn) { btn.disabled = false; btn.innerHTML = '&#128196; Download PDF Report'; }
+            showToast('Report downloaded', 'success');
+        })
+        .catch(err => {
+            if (btn) { btn.disabled = false; btn.innerHTML = '&#128196; Download PDF Report'; }
+            showToast('Failed to generate report: ' + err.message, 'error');
+        });
+}
 </script>
 {% block scripts %}{% endblock %}
 </body>
